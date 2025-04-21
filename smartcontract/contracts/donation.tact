@@ -71,6 +71,7 @@ contract Donation with Deployable, Ownable {
 
     receive(msg: ReceiveDonation){
         require(self.campaigns.exists(msg.id), "campaign is not found");
+        require(msg.amount > 0, "amount must be greater than 0");
 
         let campaign = self.campaigns.get(msg.id);
 
@@ -84,13 +85,20 @@ contract Donation with Deployable, Ownable {
     receive(msg: WithdrawCampaign){
         self.requireOwner();
         require(self.campaigns.exists(msg.id), "campaign not found");
+        require(msg.amount > 0, "amount must be greater than 0");
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
 
         require(campaign!!.balance >= ton("1"), "minimum withdraw amount is 1 TON");
-        require(campaign!!.balance >= msg.amount, "insufficient balance");
-        require(balance > msg.amount, "insufficient balance");
+        require(campaign!!.balance >= msg.amount, "insufficient campaign balance");
+        require(balance > msg.amount, "contract has insufficient balance");
+
+        self.campaigns.set(msg.id, Campaign{
+            id: msg.id,
+            name: campaign!!.name,
+            balance: campaign!!.balance - msg.amount,
+        });
 
         send(SendParameters{
             to: self.owner, 
@@ -99,11 +107,6 @@ contract Donation with Deployable, Ownable {
             bounce: true,
         });
 
-        self.campaigns.set(msg.id, Campaign{
-            id: msg.id,
-            name: campaign!!.name,
-            balance: campaign!!.balance - msg.amount,
-        });
     }
 
     receive(msg: DeleteCampaign) {
@@ -112,17 +115,17 @@ contract Donation with Deployable, Ownable {
 
         let campaign = self.campaigns.get(msg.id);
 
+        self.campaigns.del(msg.id);
+        self.numOfCampaign -= 1;
+
         if(campaign!!.balance > ton("1")){
             send(SendParameters{
                 to: self.owner, 
                 value: campaign!!.balance, 
                 mode: 0,
                 bounce: true,
-                body: "successful withdraw campaign".asComment()
+                body: "successful delete campaign".asComment()
             });
         }
-        
-        self.campaigns.del(msg.id);
-        self.numOfCampaign -= 1;
     }
 }
