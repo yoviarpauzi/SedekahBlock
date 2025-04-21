@@ -1,4 +1,12 @@
 node_modules
+test
+prisma/migrations
+coverage
+generated
+logs
+
 # Keep environment variables out of version control
 .env
-test
+*.http
+
+package-lock.json

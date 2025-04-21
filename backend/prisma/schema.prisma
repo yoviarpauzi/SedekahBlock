@@ -14,56 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             Int      @id @default(autoincrement())
-  name           String   @db.VarChar(100)
-  email          String   @unique @db.VarChar(100)
-  wallet_address String   @db.VarChar(100)
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+enum Role {
+  ADMIN
+  USER
+}
 
-  donation_histories CampaignHistoryTransaction[]
+model User {
+  id              Int      @id @default(autoincrement())
+  role            Role     @default(USER)
+  name            String   @default("Hamba Allah") @db.VarChar(100)
+  email           String?  @unique @db.VarChar(100)
+  profile_picture String   @default("https://ui-avatars.com/api/?name=Hamba+Allah") @db.VarChar(100)
+  wallet_address  String   @unique @db.VarChar(100)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@map("users")
-}
-
-model Category {
-  id         Int      @id @default(autoincrement())
-  name       String   @unique @db.VarChar(100)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  campaigns Campaign[]
-
-  @@map("categories")
-}
-
-model Campaign {
-  id               Int      @id @default(autoincrement())
-  categories_id    Int
-  name             String   @unique @db.VarChar(100)
-  contract_id      BigInt
-  contract_address String
-  balance          Float
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  category              Category                     @relation(fields: [categories_id], references: [id])
-  transaction_histories CampaignHistoryTransaction[]
-
-  @@map("campaigns")
-}
-
-model CampaignHistoryTransaction {
-  id           Int      @id @default(autoincrement())
-  users_id     Int
-  campaigns_id Int
-  amount       Float
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  donor    User     @relation(fields: [users_id], references: [id])
-  campaign Campaign @relation(fields: [campaigns_id], references: [id])
-
-  @@map("campaign_history_transactions")
 }
