@@ -1,6 +1,7 @@
 const tonConfig = {
   client: {
     endpoint: "https://testnet.toncenter.com/api/v2/jsonRPC",
+    network: "testnet",
   },
   connectUI: {
     manifestUrl:

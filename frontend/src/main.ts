@@ -5,6 +5,7 @@ import router from "@/router";
 import tonConfig from "@/config/ton";
 import configureAxiosRetry from "@/config/axios";
 import { createVueton } from "@d0rich/vueton";
+import { createPinia } from "pinia";
 
 configureAxiosRetry();
 
@@ -15,7 +16,10 @@ const vueton = createVueton({
   tonConnectUI: tonConfig.connectUI,
 });
 
+const pinia = createPinia();
+
 app.use(vueton);
 app.use(router);
+app.use(pinia);
 
 app.mount("#app");

@@ -1,6 +1,6 @@
 <template>
   <Header />
-  <div class="py-20">
+  <div class="pt-16">
     <RouterView />
   </div>
   <Footer />
