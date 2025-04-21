@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import ResponseError from "../error/response-error";
 import { ZodError } from "zod";
+import logger from "../config/logger";
 
 const errorMiddleware = (
   err: any,
@@ -14,6 +15,8 @@ const errorMiddleware = (
   }
 
   if (err instanceof ResponseError) {
+    logger.error(err.message);
+
     res
       .status(err.status)
       .json({
@@ -22,6 +25,8 @@ const errorMiddleware = (
       })
       .end();
   } else if (err instanceof ZodError) {
+    logger.error(err.message);
+
     res
       .status(400)
       .json({
@@ -33,6 +38,8 @@ const errorMiddleware = (
       })
       .end();
   } else {
+    logger.error("server internal error");
+
     res.status(500).json({
       status: "error",
       message: "server internal error",
