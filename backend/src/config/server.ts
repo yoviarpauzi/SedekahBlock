@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
 import cors, { CorsOptions } from "cors";
+import path from "path";
 
 const corsOptions: CorsOptions = {
   origin: "http://localhost:5173",
@@ -15,6 +16,11 @@ const server = createServer(app);
 const io = new Server(server);
 
 app.use(cors(corsOptions));
+app.use(
+  express.static(path.resolve(__dirname, "../storage"), {
+    fallthrough: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

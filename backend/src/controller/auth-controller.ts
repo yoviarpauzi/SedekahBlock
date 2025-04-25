@@ -9,9 +9,7 @@ import nacl from "tweetnacl";
 import ResponseError from "../error/response-error";
 import userService from "../services/user-service";
 import jwt from "jsonwebtoken";
-import logger from "../config/logger";
 
-// Interfaces for type safety
 interface ProofPayload {
   proof: {
     payload: string;
@@ -222,7 +220,7 @@ const authenticate = async (
       .status(200)
       .json({
         status: "success",
-        message: "Successfully authenticated",
+        message: "successfully authenticated",
       });
   } catch (err) {
     next(err);

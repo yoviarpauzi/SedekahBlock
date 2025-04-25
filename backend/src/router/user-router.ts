@@ -4,8 +4,11 @@ import authMiddleware from "../middleware/auth-middleware";
 
 const router = express.Router();
 
-router.use(authMiddleware);
-router.get("/api/user/:id", userController.getUser);
-router.get("/api/user/wallet/:wallet", userController.getProfile);
+router.get("/api/user/:id", authMiddleware, userController.getUser);
+router.get(
+  "/api/user/wallet/:wallet",
+  authMiddleware,
+  userController.getProfile
+);
 
 export default router;

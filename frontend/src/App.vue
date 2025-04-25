@@ -1,5 +1,6 @@
 <template>
   <Toaster />
+  <Preloader v-model:loading="loading" />
   <RouterView />
 </template>
 
@@ -12,9 +13,12 @@ import axios, { AxiosError } from "axios";
 import { toast } from "vue-sonner";
 import useUserStore from "./stores/userStore";
 import Cookies from "js-cookie";
+import Preloader from "./components/Preloader.vue";
+import { ref } from "vue";
 
 const { tonNetwork, tonWallet, tonConnect } = useTonConnect();
 const user = useUserStore();
+const loading = ref(true);
 
 const showErrorToast = (message: string) => {
   toast.error("Error", {
@@ -29,7 +33,7 @@ const showErrorToast = (message: string) => {
 
 const waitForAccessToken = async (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const maxWaitTime = 10000; // 10 detik
+    const maxWaitTime = 10000;
     let elapsed = 0;
 
     const checkToken = setInterval(() => {
@@ -40,13 +44,13 @@ const waitForAccessToken = async (): Promise<void> => {
         resolve();
       }
 
-      elapsed += 1000;
+      elapsed += 2000;
       if (elapsed >= maxWaitTime) {
         clearInterval(checkToken);
         console.error("Timeout: accessToken not found");
         reject(new Error("Timeout: accessToken not found"));
       }
-    }, 1000);
+    }, 2000);
   });
 };
 
@@ -77,9 +81,9 @@ const authenticateWithTonProof = async () => {
           withCredentials: true,
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof AxiosError) {
-        showErrorToast(err.response?.data.message || "Authentication failed");
+        showErrorToast(err.response?.data.message || err.message);
       }
     }
   }
@@ -89,6 +93,7 @@ const fetchUserData = async () => {
   if (tonWallet.value?.account.address) {
     try {
       await waitForAccessToken();
+
       const res = await axios.get(
         `http://localhost:3000/api/user/wallet/${tonConnect.account?.address}`,
         { withCredentials: true }
@@ -97,7 +102,11 @@ const fetchUserData = async () => {
       user.setUser(data);
     } catch (err: any) {
       await tonConnect.disconnect();
-      console.log(err.message);
+      if (err.response?.data.message == "access token not found") {
+        return;
+      }
+
+      showErrorToast(err.response?.data.message);
     }
   }
 };

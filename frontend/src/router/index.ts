@@ -5,7 +5,8 @@ import {
   type RouteRecordRaw,
 } from "vue-router";
 import DefaultLayout from "@/layouts/default.vue";
-import Home from "@/pages/Home.vue";
+import Home from "@/pages/Home/index.vue";
+import Campaign from "@/pages/Campaign/index.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -15,6 +16,10 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "/",
         component: Home,
+      },
+      {
+        path: "/campaign",
+        component: Campaign,
       },
     ],
   },

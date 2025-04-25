@@ -106,7 +106,6 @@ contract Donation with Deployable, Ownable {
             mode: 0,
             bounce: true,
         });
-
     }
 
     receive(msg: DeleteCampaign) {

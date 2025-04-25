@@ -2,21 +2,25 @@ import { useTonConnect } from "@d0rich/vueton";
 import { generatePayload } from "./tonProof";
 
 const connectWallet = async () => {
-  const { tonConnect } = useTonConnect();
-  tonConnect.setConnectRequestParameters({
-    state: "loading",
-  });
+  try {
+    const { tonConnect } = useTonConnect();
+    tonConnect.setConnectRequestParameters({
+      state: "loading",
+    });
 
-  const payload = await generatePayload();
+    const payload = await generatePayload();
 
-  tonConnect.setConnectRequestParameters({
-    state: "ready",
-    value: {
-      tonProof: payload,
-    },
-  });
+    tonConnect.setConnectRequestParameters({
+      state: "ready",
+      value: {
+        tonProof: payload,
+      },
+    });
 
-  await tonConnect.openModal();
+    await tonConnect.openModal();
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export default connectWallet;
