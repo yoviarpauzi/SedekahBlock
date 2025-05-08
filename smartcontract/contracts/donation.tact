@@ -1,4 +1,3 @@
-import "@stdlib/deploy";
 import "@stdlib/ownable";
 
 struct Campaign {
@@ -26,18 +25,19 @@ message DeleteCampaign {
     id: Int as uint32;
 }
 
-contract Donation with Deployable, Ownable {
-    // Empty init() function is present by default in all Tact contracts
-    // since v1.3.0, so the following may be omitted:
-    //
+contract Donation with Ownable {
     owner: Address;
-    campaigns: map<Int, Campaign>;
+    campaigns: map<Int as uint23, Campaign>;
     numOfCampaign: Int as uint32;
 
     init(owner: Address) {
         self.owner = owner;
         self.campaigns = emptyMap();
         self.numOfCampaign = 0;
+    }
+
+    receive() {
+        cashback(sender())
     }
 
     get fun campaignName(id: Int): String{
@@ -58,7 +58,7 @@ contract Donation with Deployable, Ownable {
 
     receive(msg: CreateCampaign) {
         self.requireOwner();
-        require(!self.campaigns.exists(msg.id), "campaign is exists");
+        throwUnless(!self.campaigns.exists(msg.id), "campaign is exists");
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
@@ -70,8 +70,8 @@ contract Donation with Deployable, Ownable {
     }
 
     receive(msg: ReceiveDonation){
-        require(self.campaigns.exists(msg.id), "campaign is not found");
-        require(msg.amount > 0, "amount must be greater than 0");
+        throwUnless(self.campaigns.exists(msg.id), "campaign is not found");
+        throwUnless(msg.amount > 0, "amount must be greater than 0");
 
         let campaign = self.campaigns.get(msg.id);
 
@@ -84,15 +84,15 @@ contract Donation with Deployable, Ownable {
 
     receive(msg: WithdrawCampaign){
         self.requireOwner();
-        require(self.campaigns.exists(msg.id), "campaign not found");
-        require(msg.amount > 0, "amount must be greater than 0");
+        throwUnless(self.campaigns.exists(msg.id), "campaign not found");
+        throwUnless(msg.amount > 0, "amount must be greater than 0");
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
 
-        require(campaign!!.balance >= ton("1"), "minimum withdraw amount is 1 TON");
-        require(campaign!!.balance >= msg.amount, "insufficient campaign balance");
-        require(balance > msg.amount, "contract has insufficient balance");
+        throwUnless(campaign!!.balance >= ton("1"), "minimum withdraw amount is 1 TON");
+        throwUnless(campaign!!.balance >= msg.amount, "insufficient campaign balance");
+        throwUnless(balance > msg.amount, "contract has insufficient balance");
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
@@ -100,31 +100,17 @@ contract Donation with Deployable, Ownable {
             balance: campaign!!.balance - msg.amount,
         });
 
-        send(SendParameters{
-            to: self.owner, 
+        message(MessageParameters {
+            to: sender(),    
             value: msg.amount, 
-            mode: 0,
-            bounce: true,
         });
     }
 
     receive(msg: DeleteCampaign) {
         self.requireOwner();
-        require(self.campaigns.exists(msg.id), "campaign is not found");
-
-        let campaign = self.campaigns.get(msg.id);
-
-        self.campaigns.del(msg.id);
+        throwUnless(self.campaigns.exists(msg.id), "campaign is not found");
+        
+        let _ = self.campaigns.del(msg.id);
         self.numOfCampaign -= 1;
-
-        if(campaign!!.balance > ton("1")){
-            send(SendParameters{
-                to: self.owner, 
-                value: campaign!!.balance, 
-                mode: 0,
-                bounce: true,
-                body: "successful delete campaign".asComment()
-            });
-        }
     }
 }
