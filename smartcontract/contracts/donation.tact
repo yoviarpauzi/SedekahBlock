@@ -58,7 +58,7 @@ contract Donation with Ownable {
 
     receive(msg: CreateCampaign) {
         self.requireOwner();
-        throwUnless(!self.campaigns.exists(msg.id), "campaign is exists");
+        throwUnless(1024,!self.campaigns.exists(msg.id));
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
@@ -70,8 +70,8 @@ contract Donation with Ownable {
     }
 
     receive(msg: ReceiveDonation){
-        throwUnless(self.campaigns.exists(msg.id), "campaign is not found");
-        throwUnless(msg.amount > 0, "amount must be greater than 0");
+        throwUnless(1024, self.campaigns.exists(msg.id));
+        throwUnless(1024,msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
 
@@ -84,15 +84,15 @@ contract Donation with Ownable {
 
     receive(msg: WithdrawCampaign){
         self.requireOwner();
-        throwUnless(self.campaigns.exists(msg.id), "campaign not found");
-        throwUnless(msg.amount > 0, "amount must be greater than 0");
+        throwUnless(1024, self.campaigns.exists(msg.id));
+        throwUnless(1024,msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
 
-        throwUnless(campaign!!.balance >= ton("1"), "minimum withdraw amount is 1 TON");
-        throwUnless(campaign!!.balance >= msg.amount, "insufficient campaign balance");
-        throwUnless(balance > msg.amount, "contract has insufficient balance");
+        throwUnless(1024,campaign!!.balance >= ton("1"));
+        throwUnless(1024, campaign!!.balance >= msg.amount);
+        throwUnless(1024, balance > msg.amount);
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
@@ -108,7 +108,7 @@ contract Donation with Ownable {
 
     receive(msg: DeleteCampaign) {
         self.requireOwner();
-        throwUnless(self.campaigns.exists(msg.id), "campaign is not found");
+        throwUnless(1024, self.campaigns.exists(msg.id));
         
         let _ = self.campaigns.del(msg.id);
         self.numOfCampaign -= 1;

@@ -1,6 +1,8 @@
 <template>
   <Header />
-  <RouterView />
+  <div class="font-poppins">
+    <RouterView />
+  </div>
   <Footer />
 </template>
 

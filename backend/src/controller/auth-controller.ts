@@ -9,6 +9,7 @@ import nacl from "tweetnacl";
 import ResponseError from "../error/response-error";
 import userService from "../services/user-service";
 import jwt from "jsonwebtoken";
+import { User } from "../../generated/prisma";
 
 interface ProofPayload {
   proof: {
@@ -20,12 +21,6 @@ interface ProofPayload {
   };
   address: string;
   network: string;
-}
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
 }
 
 // Constants
@@ -207,20 +202,20 @@ const authenticate = async (
     }
 
     const accessToken = jwt.sign(
-      { id: user.id, name: user.name, email: user.email },
+      { id: user.id, name: user.name },
       accessTokenSecret!,
       { expiresIn: "1d" }
     );
 
     res
+      .status(200)
       .cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: false,
       })
-      .status(200)
       .json({
         status: "success",
-        message: "successfully authenticated",
+        message: "success authentication",
       });
   } catch (err) {
     next(err);

@@ -22,13 +22,13 @@ enum Role {
 model User {
   id                 Int               @id @default(autoincrement())
   role               Role              @default(USER)
-  name               String            @default("Hamba Allah") @db.VarChar(100)
-  email              String?           @unique @db.VarChar(100)
-  profile_picture    String            @default("https://ui-avatars.com/api/?name=Hamba+Allah") @db.VarChar(100)
+  name               String            @default("Orang Baik") @db.VarChar(100)
+  profile_picture    String            @default("https://ui-avatars.com/api/?name=Orang+Baik") @db.VarChar(100)
   wallet_address     String            @unique @db.VarChar(100)
   created_at         DateTime          @default(now())
-  updated_at         DateTime          @updatedAt
+  updated_at         DateTime?         @updatedAt
   donation_histories DonationHistory[]
+  Donor              Donor[]
 
   @@map("users")
 }
@@ -44,27 +44,67 @@ model Category {
 }
 
 model Campaign {
-  id                 BigInt            @id @default(autoincrement())
-  categories_id      Int
-  name               String            @unique @db.VarChar(100)
-  target             BigInt
-  end_at             DateTime
-  created_at         DateTime          @default(now())
-  updated_at         DateTime          @updatedAt
-  category           Category          @relation(fields: [categories_id], references: [id])
-  donation_histories DonationHistory[]
+  id                        Int                         @id @default(autoincrement())
+  categories_id             Int
+  title                     String                      @unique @db.VarChar(100)
+  target                    Decimal                     @db.Decimal(10, 2)
+  end_at                    DateTime                    @db.Date
+  thumbnail                 String                      @db.VarChar(100)
+  campaign_story            String?                     @db.Text
+  balance                   Decimal                     @default(0) @db.Decimal(10, 2)
+  created_at                DateTime                    @default(now())
+  updated_at                DateTime?                   @updatedAt
+  category                  Category                    @relation(fields: [categories_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  donation_histories        DonationHistory[]
+  Donor                     Donor[]
+  LatestNews                LatestNews[]
+  FundDisbursementHistories FundDisbursementHistories[]
 
   @@map("campaigns")
 }
 
 model DonationHistory {
-  id           Int    @id @default(autoincrement())
+  id           Int     @id @default(autoincrement())
   users_id     Int
-  campaigns_id BigInt
-  amount       BigInt
+  campaigns_id Int
+  amount       Decimal @db.Decimal(10, 2)
 
-  users     User      @relation(fields: [users_id], references: [id])
-  campaigns Campaign? @relation(fields: [campaigns_id], references: [id])
+  users     User      @relation(fields: [users_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  campaigns Campaign? @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("donation_histories")
+}
+
+model Donor {
+  users_id     Int
+  campaigns_id Int
+
+  user     User     @relation(fields: [users_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@id([users_id, campaigns_id])
+  @@map("donors")
+}
+
+model LatestNews {
+  id           Int    @id @default(autoincrement())
+  campaigns_id Int
+  title        String @db.VarChar(100)
+  body         String @db.Text()
+
+  campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("latest_news")
+}
+
+model FundDisbursementHistories {
+  id           Int     @id @default(autoincrement())
+  campaigns_id Int
+  amount       Decimal @db.Decimal(10, 2)
+  title        String  @db.VarChar(100)
+  body         String  @db.Text()
+
+  campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("fund_disbursement_histories")
 }

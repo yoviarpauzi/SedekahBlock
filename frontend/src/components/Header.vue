@@ -1,5 +1,5 @@
 <template>
-  <header class="fixed w-full py-4 font-poppins" ref="header">
+  <header class="fixed w-full py-4 font-poppins z-10" ref="header">
     <div class="container">
       <div class="flex items-center justify-between">
         <!-- Header Left -->
@@ -18,19 +18,21 @@
           <nav class="hidden lg:flex lg:items-center">
             <ul class="flex gap-x-10 text-sm text-green-800 font-medium">
               <li
-                class="hover:underline"
-                :class="[route.path === '/' ? 'underline' : '']"
+                :class="{
+                  'hover:border-b-2 hover:border-b-green-700': true,
+                  'border-b-2 border-b-green-700': route.path === '/',
+                }"
               >
                 <RouterLink to="/">Beranda</RouterLink>
               </li>
 
               <li
-                :class="[
-                  'hover:underline',
-                  route.path === '/campaign' ? 'undeline' : '',
-                ]"
+                :class="{
+                  'hover:border-b-2 hover:border-b-green-700': true,
+                  'border-b-2 border-b-green-700': route.path === '/campaigns',
+                }"
               >
-                <RouterLink to="/campaign">Kampanye</RouterLink>
+                <RouterLink to="/campaigns">Kampanye</RouterLink>
               </li>
             </ul>
           </nav>
@@ -39,8 +41,8 @@
         <!-- Header Right -->
         <div class="flex items-center">
           <Button
-            variant="success"
             class="flex items-center font-grotesque mr-4 lg:mr-0"
+            variant="success"
             @click="connectWallet"
             v-if="!tonNetwork"
           >
@@ -48,7 +50,52 @@
             CONNECT
           </Button>
 
-          <div v-else class="mr-4 gap-x-4 flex items-center"></div>
+          <div v-else class="mr-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <Avatar class="w-8 h-8 cursor-pointer">
+                  <AvatarImage
+                    :src="user.profile_picture ?? 'ID'"
+                    class="w-8 h-8"
+                  />
+                  <AvatarFallback> ID </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                class="w-[--reka-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                align="end"
+                :side-offset="4"
+              >
+                <DropdownMenuLabel class="p-0 font-normal">
+                  <div
+                    class="flex items-center gap-2 px-1 py-1.5 text-left text-sm"
+                  >
+                    <Avatar class="h-8 w-8 rounded-lg">
+                      <AvatarImage
+                        :src="user.profile_picture ?? 'ID'"
+                        :alt="user.name"
+                      />
+                      <AvatarFallback class="rounded-lg"> ID </AvatarFallback>
+                    </Avatar>
+                    <div class="grid flex-1 text-left text-sm leading-tight">
+                      <span class="truncate font-semibold">{{
+                        user.name
+                      }}</span>
+                      <span class="truncate text-xs">{{ user.role }}</span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem> Account </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem @click.prevent="disconnectWallet">
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           <Sheet>
             <SheetTrigger as-child class="lg:hidden">
@@ -64,9 +111,9 @@
                   <SheetClose>
                     <RouterLink
                       to="/"
-                      class="hover:border-b-2 hover:border-green-600"
+                      class="hover:border-b-2 hover:border-green-700"
                       :class="[
-                        route.path === '/' ? 'border-b-2 border-green-600' : '',
+                        route.path === '/' ? 'border-b-2 border-green-700' : '',
                       ]"
                       >Beranda</RouterLink
                     >
@@ -76,11 +123,11 @@
                 <li>
                   <SheetClose>
                     <RouterLink
-                      to="/campaign"
-                      class="hover:border-b-2 hover:border-green-600"
+                      to="/campaigns"
+                      class="hover:border-b-2 hover:border-green-700"
                       :class="[
                         route.path === '/campaign'
-                          ? 'border-b-2 border-green-600'
+                          ? 'border-b-2 border-green-700'
                           : '',
                       ]"
                       >Kampanye</RouterLink
@@ -102,24 +149,40 @@ import Button from "@/components/ui/button/Button.vue";
 import { RouterLink } from "vue-router";
 import { toast } from "vue-sonner";
 import { useTonConnect } from "@d0rich/vueton";
-import connectWallet from "@/utils/connectWallet";
-import { Wallet, Menu, User, History, Power, Bell } from "lucide-vue-next";
+import { connectWallet } from "@/utils/connectionWallet";
 import { useRoute } from "vue-router";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import useUserStore from "@/stores/userStore";
-import SheetClose from "./ui/sheet/SheetClose.vue";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import { Menu, Wallet } from "lucide-vue-next";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useUserStore from "@/stores/authStore";
 
 const route = useRoute();
 const header = ref<HTMLElement | null>(null);
 const { tonNetwork, tonConnect } = useTonConnect();
 const user = useUserStore();
+
+const disconnectWallet = async () => {
+  try {
+    await tonConnect.disconnect();
+    sessionStorage.clear();
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 onMounted(async () => {
   window.addEventListener("scroll", () => {

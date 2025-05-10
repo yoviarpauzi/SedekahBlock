@@ -46,7 +46,7 @@
             >
 
             <RouterLink
-              to="/campaign"
+              to="/campaigns"
               class="text-sm hover:underline transition-colors duration-300"
               >Kampanye</RouterLink
             >
@@ -65,7 +65,7 @@
               <p class="text-sm">info@sedekahblock.org</p>
             </div>
           </div>
-          <div class="w-16 h-px bg-green-400 md:self-end"></div>
+          <div class="w-16 h-px bg-green-800 md:self-end"></div>
           <p class="text-xs text-green-800">
             © 2025 Yayasan Pribumi untuk Negeri. All rights reserved.
           </p>

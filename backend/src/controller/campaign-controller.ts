@@ -8,7 +8,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
 
     const campaign = await campaignService.create(validate);
 
-    res.status(200).json({
+    res.status(201).json({
       status: "success",
       message: "success create campaign",
       data: {
@@ -22,7 +22,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
 
 const update = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = BigInt(req.params.id);
+    const id = parseInt(req.params.id);
     const validate = campaignValidation.upsert.parse(req.body);
 
     const campaign = await campaignService.update(id, validate);
@@ -41,7 +41,7 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
 
 const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = BigInt(req.params.id);
+    const id = parseInt(req.params.id);
 
     const campaign = await campaignService.getCampaign(id);
 
@@ -57,8 +57,55 @@ const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getAllCampaign = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const search = req.query?.search?.toString() ?? "";
+    const page = Number(req.query.page) || 1;
+
+    const [campaigns, rowCount] = await campaignService.getAllCampaign(
+      page,
+      search
+    );
+
+    res.status(200).json({
+      message: "success retrieve campaigns",
+      data: {
+        campaigns,
+        rowCount,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const isTitleExist = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const title = req.query.title?.toString() ?? "";
+    console.log(title);
+
+    const isExist = await campaignService.isCampaignTitleExist(title);
+
+    res.status(200).json({
+      data: isExist,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
   update,
   getCampaign,
+  getAllCampaign,
+  isTitleExist,
 };

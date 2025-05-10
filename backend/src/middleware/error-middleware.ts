@@ -20,7 +20,6 @@ const errorMiddleware = (
     res
       .status(err.status)
       .json({
-        status: "error",
         message: err.message,
       })
       .end();
@@ -30,18 +29,14 @@ const errorMiddleware = (
     res
       .status(400)
       .json({
-        status: "error",
         message: err.message,
-        data: {
-          ...err.issues,
-        },
+        error: err,
       })
       .end();
   } else {
     logger.error("server internal error");
 
     res.status(500).json({
-      status: "error",
       message: "server internal error",
     });
   }

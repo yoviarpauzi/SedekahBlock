@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
+const serverURI = "http://localhost:3000";
 
-dotenv.config();
-
-export const serverURI = process.env.SERVER_URI;
+export { serverURI };

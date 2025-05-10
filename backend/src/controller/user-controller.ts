@@ -9,11 +9,8 @@ const getProfile = async (req: Request, res: Response, next: NextFunction) => {
     const user = await userService.getUserByWallet(wallet);
 
     res.status(200).json({
-      status: "success",
       message: "success retrieve user profile",
-      data: {
-        ...user,
-      },
+      data: user,
     });
   } catch (err) {
     next(err);
@@ -23,14 +20,29 @@ const getProfile = async (req: Request, res: Response, next: NextFunction) => {
 const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id;
-
     const user = await userService.getUserById(Number(id));
 
     res.status(200).json({
-      status: "success",
       message: "success retrieve user data",
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const search = req.query.search?.toString() ?? "";
+    const page = Number(req.query.page) || 1;
+
+    const [users, rowCount] = await userService.getAllUser(page, search);
+
+    res.status(200).json({
+      message: "successfully retrieved user data",
       data: {
-        ...user,
+        users: users,
+        rowCount: rowCount,
       },
     });
   } catch (err) {
@@ -43,10 +55,9 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const validate = userValidation.update.parse(req.body);
 
-    const user = await userService.update(Number(id), validate);
+    const user = await userService.update(Number(id), validate.name);
 
     res.status(200).json({
-      status: "success",
       message: "success update user data",
       data: {
         ...user,
@@ -65,6 +76,7 @@ const updateProfile = async (req: Request, res: Response) => {
 export default {
   getProfile,
   getUser,
+  getUsers,
   update,
   updateProfile,
 };

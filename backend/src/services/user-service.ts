@@ -1,5 +1,4 @@
 import prisma from "../config/database";
-import ResponseError from "../error/response-error";
 
 const create = async (wallet_address: string) => {
   try {
@@ -13,7 +12,7 @@ const create = async (wallet_address: string) => {
   }
 };
 
-const update = async (id: number, user: { name: string; email: string }) => {
+const update = async (id: number, name: string) => {
   try {
     const isUserExist = await getUserById(id);
 
@@ -23,8 +22,7 @@ const update = async (id: number, user: { name: string; email: string }) => {
           id: id,
         },
         data: {
-          name: user.name,
-          email: user.email,
+          name: name,
         },
       });
     }
@@ -58,10 +56,6 @@ const getUserByWallet = async (wallet_address: string) => {
       where: { wallet_address },
     });
 
-    if (!user) {
-      throw new ResponseError(404, "user not found");
-    }
-
     return user;
   } catch (err) {
     throw err;
@@ -74,18 +68,33 @@ const getUserById = async (id: number) => {
       where: { id },
     });
 
-    if (!user) {
-      throw new ResponseError(404, "user not found");
-    }
-
     return user;
   } catch (err) {
     throw err;
   }
 };
 
-const getAllUser = async (page: number) => {
-  return await prisma.user.findMany({});
+const getAllUser = async (page: number, search: string) => {
+  const limit = 5;
+  const skip = (page - 1) * limit;
+
+  const where: {
+    name?: { contains: string; mode: "insensitive" };
+  } = {
+    ...(search && {
+      name: {
+        contains: search,
+        mode: "insensitive",
+      },
+    }),
+  };
+
+  const [users, rowCount] = await Promise.all([
+    prisma.user.findMany({ skip, take: limit, where }),
+    prisma.user.count({ where }),
+  ]);
+
+  return [users, rowCount];
 };
 
 export default {

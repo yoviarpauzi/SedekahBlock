@@ -1,6 +1,5 @@
 <template>
   <Toaster />
-  <Preloader v-model:loading="loading" />
   <RouterView />
 </template>
 
@@ -11,14 +10,11 @@ import { useTonConnect } from "@d0rich/vueton";
 import { watch } from "vue";
 import axios, { AxiosError } from "axios";
 import { toast } from "vue-sonner";
-import useUserStore from "./stores/userStore";
-import Cookies from "js-cookie";
-import Preloader from "./components/Preloader.vue";
-import { ref } from "vue";
+import useAuthStore from "./stores/authStore";
+import { serverURI } from "./utils/environment";
 
 const { tonNetwork, tonWallet, tonConnect } = useTonConnect();
-const user = useUserStore();
-const loading = ref(true);
+const user = useAuthStore();
 
 const showErrorToast = (message: string) => {
   toast.error("Error", {
@@ -28,29 +24,6 @@ const showErrorToast = (message: string) => {
       backgroundColor: "#fef2f2",
       color: "#991b1b",
     },
-  });
-};
-
-const waitForAccessToken = async (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const maxWaitTime = 10000;
-    let elapsed = 0;
-
-    const checkToken = setInterval(() => {
-      const accessToken = Cookies.get();
-
-      if (accessToken) {
-        clearInterval(checkToken);
-        resolve();
-      }
-
-      elapsed += 2000;
-      if (elapsed >= maxWaitTime) {
-        clearInterval(checkToken);
-        console.error("Timeout: accessToken not found");
-        reject(new Error("Timeout: accessToken not found"));
-      }
-    }, 2000);
   });
 };
 
@@ -71,7 +44,7 @@ const authenticateWithTonProof = async () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/api/auth",
+        `${serverURI}/api/auth`,
         {
           address: tonWallet.value.account.address,
           network: tonNetwork.value,
@@ -81,6 +54,8 @@ const authenticateWithTonProof = async () => {
           withCredentials: true,
         }
       );
+
+      await fetchUserData(tonWallet.value?.account.address!);
     } catch (err: any) {
       if (err instanceof AxiosError) {
         showErrorToast(err.response?.data.message || err.message);
@@ -89,29 +64,33 @@ const authenticateWithTonProof = async () => {
   }
 };
 
-const fetchUserData = async () => {
+const fetchUserData = async (address: string) => {
   if (tonWallet.value?.account.address) {
     try {
-      await waitForAccessToken();
-
-      const res = await axios.get(
-        `http://localhost:3000/api/user/wallet/${tonConnect.account?.address}`,
-        { withCredentials: true }
-      );
-      const { data } = res.data;
-      user.setUser(data);
+      await user.authentication(address);
     } catch (err: any) {
       await tonConnect.disconnect();
-      if (err.response?.data.message == "access token not found") {
-        return;
+      if (err instanceof AxiosError) {
+        if (err.response?.data.message == "access token not found") {
+          return;
+        }
+        showErrorToast(err.response?.data.message);
       }
-
-      showErrorToast(err.response?.data.message);
     }
   }
 };
 
 watch(() => tonWallet.value?.connectItems?.tonProof, authenticateWithTonProof);
 
-watch(() => tonWallet.value?.account.address, fetchUserData);
+watch(
+  () => tonNetwork.value,
+  async () => {
+    if (
+      !tonWallet.value?.connectItems?.tonProof &&
+      tonNetwork.value == "testnet"
+    ) {
+      await fetchUserData(tonWallet.value?.account.address!);
+    }
+  }
+);
 </script>
