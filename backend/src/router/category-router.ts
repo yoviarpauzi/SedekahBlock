@@ -12,7 +12,7 @@ router.get(
   categoryController.isNameExist
 );
 router.delete(
-  "/api/categories/:id",
+  "/api/categories/id/:id",
   adminMiddleware,
   categoryController.destroy
 );

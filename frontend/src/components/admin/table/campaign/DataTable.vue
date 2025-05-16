@@ -34,7 +34,9 @@
             :data-state="row.getIsSelected() ? 'selected' : undefined"
           >
             <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+              <Skeleton v-if="campaignStore.isLoading" class="h-4 w-full" />
               <FlexRender
+                v-else
                 :render="cell.column.columnDef.cell"
                 :props="cell.getContext()"
               />
@@ -93,6 +95,7 @@ import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { useRoute } from "vue-router";
 import useCampaignStore from "@/stores/campaignStore";
+import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 
 const route = useRoute();
 const pageIndex = route.query.page ? Number(route.query.page) - 1 : 0;

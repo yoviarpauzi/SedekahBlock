@@ -32,7 +32,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import useCategoryStore from "@/stores/categoryStore";
-import { useRoute } from "vue-router";
 import { AxiosError } from "axios";
 import showToast from "@/utils/showToast";
 
@@ -45,8 +44,6 @@ const props = defineProps<{
 
 const categoryStore = useCategoryStore();
 
-const route = useRoute();
-
 const isDeleteOpen = defineModel<boolean>("isDeleteOpen");
 
 const closeDeleteDialog = () => {
@@ -56,9 +53,7 @@ const closeDeleteDialog = () => {
 const deleteCategory = async () => {
   try {
     closeDeleteDialog();
-    const search = route.query.search?.toString() ?? "";
-    const page = route.query.page?.toString() ?? "";
-    await categoryStore.deleteCategories(props.category.id, search, page);
+    await categoryStore.deleteCategories(props.category.id);
     showToast("success", "Success", "Category delete successfully");
   } catch (err) {
     let errorMessage = "Failed to delete category";

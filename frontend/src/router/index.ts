@@ -14,6 +14,7 @@ import Dashboard from "@/pages/Admin/Dashboard/index.vue";
 import AdminCategory from "@/pages/Admin/Category/index.vue";
 import AdminCampaign from "@/pages/Admin/Campaign/index.vue";
 import AdminCreateCampaign from "@/pages/Admin/Campaign/CreateCampaign.vue";
+import AdminUpdateCampaign from "@/pages/Admin/Campaign/UpdateCampaign.vue";
 import AdminUser from "@/pages/Admin/Users/index.vue";
 
 export const routes: RouteRecordRaw[] = [
@@ -51,18 +52,29 @@ export const routes: RouteRecordRaw[] = [
         component: AdminCategory,
       },
       {
-        path: "campaigns",  
+        path: "campaigns",
         component: AdminCampaign,
       },
       {
         path: "campaigns/create",
         component: AdminCreateCampaign,
       },
+      {
+        path: "campaigns/edit/:id",
+        meta: {
+          requireExistId: true,
+        },
+        component: AdminUpdateCampaign,
+      },
     ],
   },
   {
     path: "/error/401",
     component: Error401,
+  },
+  {
+    path: "/error/404",
+    component: Error404,
   },
   {
     path: "/:pathMatch(.*)*",

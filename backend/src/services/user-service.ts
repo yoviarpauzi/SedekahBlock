@@ -94,6 +94,8 @@ const getAllUser = async (page: number, search: string) => {
     prisma.user.count({ where }),
   ]);
 
+  console.log(users);
+
   return [users, rowCount];
 };
 

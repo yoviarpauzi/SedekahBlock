@@ -28,7 +28,9 @@
           <template v-if="table.getRowModel().rows?.length">
             <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <Skeleton v-if="userStore.isLoading" class="h-4 w-full" />
                 <FlexRender
+                  v-else
                   :render="cell.column.columnDef.cell"
                   :props="cell.getContext()"
                 />
@@ -47,7 +49,7 @@
     </div>
     <div class="flex items-center justify-between py-4">
       <p class="text-xs font-medium text-gray-600">
-        Total Data: <span class="font-semibold">{{ props.rowCount }}</span>
+        Total Data: <span class="font-semibold">{{ userStore.rowCount }}</span>
       </p>
       <div class="space-x-4">
         <Button
@@ -85,25 +87,27 @@ import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { useRoute, useRouter } from "vue-router";
 import Input from "@/components/ui/input/Input.vue";
+import { useUserStore } from "@/stores/userStore";
+import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  rowCount: number;
 }>();
+
+const userStore = useUserStore();
 
 const route = useRoute();
 const router = useRouter();
 
 const table = useVueTable({
   get data() {
-    return props.data;
+    return userStore.data as TData[];
   },
   get columns() {
     return props.columns;
   },
   get rowCount() {
-    return props.rowCount;
+    return userStore.rowCount;
   },
   getCoreRowModel: getCoreRowModel(),
   manualPagination: true,
@@ -118,6 +122,7 @@ const table = useVueTable({
 
 const updateSearch = (event: Event) => {
   const input = event.target as HTMLInputElement;
+  userStore.fetchUsers(1, input.value);
   table.setState((old) => ({
     ...old,
     pagination: {

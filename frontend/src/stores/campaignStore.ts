@@ -8,15 +8,17 @@ interface Campaign {
   title: string;
   target: number;
   end_at: Date;
-  thumbnail: string;
+  thumbnail: string | File;
   campaign_story: string;
-  balance: number;
+  balance?: number;
 }
 
 const useCampaignStore = defineStore("campaign", {
   state: () => ({
     data: [] as Campaign[],
+    currentCampaign: {} as Campaign,
     rowCount: 0,
+    isLoading: false,
   }),
   actions: {
     setCampaign(campaigns: Campaign[], rowCount: number) {
@@ -24,8 +26,10 @@ const useCampaignStore = defineStore("campaign", {
       this.rowCount = rowCount;
     },
 
-    async fetchCampaign(page: string, search: string) {
+    async getCampaigns(page: number = 1, search: string = "") {
       try {
+        this.isLoading = true;
+
         const res = await axios.get(
           `${serverURI}/api/campaigns?page=${page}&search=${search}`,
           {
@@ -36,6 +40,18 @@ const useCampaignStore = defineStore("campaign", {
         const { data } = res.data;
         const { campaigns, rowCount } = data;
         this.setCampaign(campaigns, rowCount);
+      } catch (err) {
+        throw err;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async addCampaign(form: FormData) {
+      try {
+        await axios.post(`${serverURI}/api/campaigns`, form, {
+          withCredentials: true,
+        });
       } catch (err) {
         throw err;
       }

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import categoryValidation from "../validations/category-validation";
 import categoryService from "../services/category-service";
-import ResponseError from "../error/response-error";
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -42,13 +41,7 @@ const getAllCategory = async (
   next: NextFunction
 ) => {
   try {
-    const search = req.query?.search?.toString() ?? "";
-    const page = Number(req.query.page) || 1;
-
-    const [categories, rowCount] = await categoryService.getAllCategory(
-      page,
-      search
-    );
+    const [categories, rowCount] = await categoryService.getAllCategory();
 
     res.status(200).json({
       message: "success retrieve categories",
@@ -63,9 +56,9 @@ const getAllCategory = async (
 };
 
 const isNameExist = async (req: Request, res: Response, next: NextFunction) => {
-  const title: string = req.query?.title?.toString() ?? "";
+  const name: string = req.query?.name?.toString() ?? "";
 
-  const isNameExist = await categoryService.isCategoryNameExist(title);
+  const isNameExist = await categoryService.isCategoryNameExist(name);
 
   res.status(200).json({
     message: "success check category",

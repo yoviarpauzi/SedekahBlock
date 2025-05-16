@@ -58,29 +58,9 @@ const getCategory = async (id: number) => {
   }
 };
 
-const getAllCategory = async (page: number, search: string) => {
-  const limit = 5;
-  const skip = (page - 1) * limit;
-
-  const where: {
-    name?: {
-      contains: string;
-      mode: "insensitive";
-    };
-  } = {
-    ...(search && {
-      name: {
-        contains: search,
-        mode: "insensitive",
-      },
-    }),
-  };
-
+const getAllCategory = async () => {
   const [category, rowCount] = await Promise.all([
     prisma.category.findMany({
-      skip,
-      take: limit,
-      where,
       include: {
         _count: {
           select: {
@@ -89,7 +69,7 @@ const getAllCategory = async (page: number, search: string) => {
         },
       },
     }),
-    prisma.category.count({ where }),
+    prisma.category.count({}),
   ]);
 
   return [category, rowCount];

@@ -17,7 +17,10 @@ const io = new Server(server);
 
 app.use(cors(corsOptions));
 app.use(
-  express.static(path.resolve(__dirname, "../storage"), {
+  express.static(path.resolve(__dirname, "./../storage/"), {
+    fallthrough: true,
+  }),
+  express.static(path.resolve(__dirname, "./../temp/"), {
     fallthrough: true,
   })
 );

@@ -1,4 +1,6 @@
+import { serverURI } from "@/utils/environment";
 import { type ColumnDef } from "@tanstack/vue-table";
+import axios from "axios";
 import { h } from "vue";
 
 export interface Campaign {
@@ -10,15 +12,14 @@ export interface Campaign {
   balance: number;
 }
 
-const categories = [
-  { id: 3, name: "Bencana Alam" },
-  { id: 4, name: "Kemanusiaan" },
-  { id: 5, name: "Bantuan Pendidikan" },
-  { id: 57, name: "Kegiatan Sosial" },
-];
+const result = await axios.get(`${serverURI}/api/categories`);
+
+const { data } = result.data;
+
+const { categories } = data;
 
 const categoryMap = Object.fromEntries(
-  categories.map((cat) => [cat.id, cat.name])
+  categories.map((cat: { id: number; name: string }) => [cat.id, cat.name])
 );
 
 export const columns: ColumnDef<Campaign>[] = [
@@ -42,6 +43,10 @@ export const columns: ColumnDef<Campaign>[] = [
   {
     accessorKey: "target",
     header: () => h("div", { class: "text-left" }, "Target"),
+    cell: ({ row }) => {
+      const formatted: string = row.getValue("target") + " TON";
+      return h("div", { class: "text-left " }, formatted);
+    },
   },
   {
     accessorKey: "end_at",

@@ -1,65 +1,16 @@
 <template>
   <Dialog v-model:open="isUpdateOpen">
-    <DialogContent class="sm:max-w-[425px]">
-      <DialogHeader class="font-poppins">
-        <DialogTitle>Update Category</DialogTitle>
-        <DialogDescription>
-          Update category here. Click update when you're done.
-        </DialogDescription>
-      </DialogHeader>
-      <form @submit.prevent="updateCategory">
-        <FormField
-          v-slot="{ componentField }"
-          name="name"
-          :validate-on-blur="!isFieldDirty"
-        >
-          <FormItem>
-            <FormLabel class="mb-2">Name</FormLabel>
-            <FormControl>
-              <Input
-                v-bind="componentField"
-                id="name"
-                class="col-span-3 selection:bg-gray-200 selection:text-black font-poppins"
-                placeholder="Enter category name"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </FormField>
-        <DialogFooter class="mt-4">
-          <Button
-            variant="outline"
-            type="button"
-            @click.prevent="closeUpdateDialog"
-            >Cancel</Button
-          >
-          <Button variant="success" type="submit" class="font-poppins">
-            Update
-          </Button>
-        </DialogFooter>
-      </form>
-    </DialogContent>
+    <CategoryForm
+      :submit="updateCategory"
+      title="Update"
+      description="Update category here. Click update when you're done."
+      v-model:is-field-dirty="isFieldDirty"
+    />
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import Input from "@/components/ui/input/Input.vue";
-import Button from "@/components/ui/button/Button.vue";
+import { Dialog } from "@/components/ui/dialog";
 import showToast from "@/utils/showToast";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
@@ -67,7 +18,7 @@ import { useForm } from "vee-validate";
 import useCategoryStore from "@/stores/categoryStore";
 import axios, { AxiosError } from "axios";
 import { serverURI } from "@/utils/environment";
-import { useRoute } from "vue-router";
+import CategoryForm from "../../CategoryForm.vue";
 
 const props = defineProps<{
   category: {
@@ -79,8 +30,6 @@ const props = defineProps<{
 const isUpdateOpen = defineModel<boolean>("isUpdateOpen");
 
 const categoryStore = useCategoryStore();
-
-const route = useRoute();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -100,7 +49,7 @@ const formSchema = toTypedSchema(
           return !data;
         },
         {
-          message: "Campaign name must be unique",
+          message: "category name must be unique",
         }
       ),
   })
@@ -108,19 +57,15 @@ const formSchema = toTypedSchema(
 
 const { isFieldDirty, handleSubmit } = useForm({
   validationSchema: formSchema,
+  initialValues: {
+    name: props.category.name,
+  },
 });
 
 const updateCategory = handleSubmit(async (values, { resetForm }) => {
   try {
     closeUpdateDialog();
-    const search: string = route.query.search?.toString() ?? "";
-    const page: string = route.query.page?.toString() ?? "";
-    await categoryStore.updateCategories(
-      props.category.id,
-      values.name,
-      search,
-      page
-    );
+    await categoryStore.updateCategories(props.category.id, values.name);
     showToast("success", "Success", "Category update successfully");
     resetForm();
   } catch (err) {

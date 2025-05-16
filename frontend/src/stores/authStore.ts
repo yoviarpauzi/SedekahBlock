@@ -10,7 +10,13 @@ interface User {
 }
 
 const useAuthStore = defineStore("auth", {
-  state: () => ({} as User),
+  state: () => ({
+    id: null as number | null,
+    name: null as string | null,
+    role: null as "ADMIN" | "USER" | null,
+    profile_picture: null as string | null,
+    isLoading: false,
+  }),
   actions: {
     setUser(user: User) {
       this.id = user.id;
@@ -21,6 +27,7 @@ const useAuthStore = defineStore("auth", {
 
     async authentication(address: string) {
       try {
+        this.isLoading = true;
         const res = await axios.get(
           `${serverURI}/api/users/wallet/${address}`,
           {
@@ -32,6 +39,8 @@ const useAuthStore = defineStore("auth", {
         sessionStorage.setItem("walletAddress", data.wallet_address);
       } catch (err: any) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -40,6 +49,7 @@ const useAuthStore = defineStore("auth", {
       this.name = null;
       this.role = null;
       this.profile_picture = null;
+      this.isLoading = false;
     },
   },
   getters: {

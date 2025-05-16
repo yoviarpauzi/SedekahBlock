@@ -1,7 +1,7 @@
 <template>
-  <h2 class="text-2xl font-bold text-gray-800 mb-4">Create Campaign</h2>
+  <h2 class="text-2xl font-bold text-gray-800 mb-4">Update Campaign</h2>
   <CampaignForm
-    :submit="createCampaign"
+    :submit="updateCampaign"
     :set-field-value="setFieldValue"
     action="Create"
     :is-field-dirty="isFieldDirty"
@@ -21,14 +21,13 @@ import { ref, onMounted } from "vue";
 import showToast from "@/utils/showToast";
 import { useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
-import useCampaignStore from "@/stores/campaignStore";
 
 const router = useRouter();
 const tonPrice = ref<number>(0);
-const campaignStore = useCampaignStore();
 
 const formSchema = toTypedSchema(
   z.object({
+    id: z.number().positive(),
     thumbnail: z
       .instanceof(File)
       .refine((file) => file?.size <= 5000000, `Max image size is 5MB.`)
@@ -74,9 +73,7 @@ const formSchema = toTypedSchema(
 const { isFieldDirty, handleSubmit, resetForm, setFieldValue, values } =
   useForm({
     validationSchema: formSchema,
-    initialValues: {
-      target: 0,
-    },
+    initialValues: {},
   });
 
 const categoryStore = useCategoryStore();
@@ -86,7 +83,7 @@ onMounted(async () => {
   tonPrice.value = await getTonPrice();
 });
 
-const createCampaign = handleSubmit(async (values) => {
+const updateCampaign = handleSubmit(async (values) => {
   try {
     const form = new FormData();
     for (const key in values) {
@@ -101,7 +98,10 @@ const createCampaign = handleSubmit(async (values) => {
       }
     }
 
-    await campaignStore.addCampaign(form);
+    await axios.post(`${serverURI}/api/campaigns`, form, {
+      withCredentials: true,
+    });
+
     showToast("success", "success", "success create campaign");
     resetForm();
     router.push("/admin/campaigns");

@@ -19,5 +19,4 @@ export async function run(provider: NetworkProvider) {
     );
 
     const campaignName = await donation.getCampaignName(1n);
-    console.log(campaignName);
 }

@@ -66,10 +66,9 @@ const getCampaign = async (id: number) => {
   }
 };
 
-const getAllCampaign = async (page: number, search: string) => {
+const getAllCampaign = async (page: number, search: string, limit: number) => {
   try {
-    const take = 5;
-    const skip = (page - 1) * take;
+    const skip = (page - 1) * limit;
 
     const where: {
       title?: {
@@ -88,7 +87,7 @@ const getAllCampaign = async (page: number, search: string) => {
     const [campaigns, rowCount] = await Promise.all([
       prisma.campaign.findMany({
         skip,
-        take,
+        take: limit,
         where,
       }),
       prisma.campaign.count({ where }),

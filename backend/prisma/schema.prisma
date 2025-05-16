@@ -48,10 +48,12 @@ model Campaign {
   categories_id             Int
   title                     String                      @unique @db.VarChar(100)
   target                    Decimal                     @db.Decimal(10, 2)
-  end_at                    DateTime                    @db.Date
+  end_at                    DateTime?                   @db.Date
   thumbnail                 String                      @db.VarChar(100)
   campaign_story            String?                     @db.Text
   balance                   Decimal                     @default(0) @db.Decimal(10, 2)
+  is_active                 Boolean                     @default(true)
+  is_withdraw               Boolean                     @default(false)
   created_at                DateTime                    @default(now())
   updated_at                DateTime?                   @updatedAt
   category                  Category                    @relation(fields: [categories_id], references: [id], onUpdate: Cascade, onDelete: Cascade)

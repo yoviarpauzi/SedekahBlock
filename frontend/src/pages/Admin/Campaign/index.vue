@@ -15,8 +15,8 @@ const campaignStore = useCampaignStore();
 const route = useRoute();
 
 onMounted(async () => {
-  const page = route.query.page?.toString() ?? "";
+  const page = Number(route.query.page) ?? 1;
   const search = route.query.search?.toString() ?? "";
-  await campaignStore.fetchCampaign(page, search);
+  await campaignStore.getCampaigns(page, search);
 });
 </script>

@@ -5,7 +5,8 @@
       <Input
         class="max-w-sm selection:bg-gray-300 selection:text-black"
         placeholder="Search name..."
-        @input="updateSearch"
+        :model-value="table.getColumn('name')?.getFilterValue() as string"
+        @update:model-value="table.getColumn('name')?.setFilterValue($event)"
       />
 
       <CreateCategory />
@@ -30,7 +31,9 @@
           <template v-if="table.getRowModel().rows?.length">
             <TableRow v-for="row in table.getRowModel().rows" :key="row.id">
               <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                <Skeleton v-if="categoryStore.isLoading" class="h-4 w-full" />
                 <FlexRender
+                  v-else
                   :render="cell.column.columnDef.cell"
                   :props="cell.getContext()"
                 />
@@ -57,7 +60,7 @@
           variant="outline"
           size="sm"
           :disabled="!table.getCanPreviousPage()"
-          @click="previousPage"
+          @click="table.previousPage()"
         >
           Previous
         </Button>
@@ -65,7 +68,7 @@
           variant="outline"
           size="sm"
           :disabled="!table.getCanNextPage()"
-          @click="nextPage"
+          @click="table.nextPage()"
         >
           Next
         </Button>
@@ -75,7 +78,7 @@
 </template>
 
 <script setup lang="ts" generic="TData, TValue">
-import type { ColumnDef } from "@tanstack/vue-table";
+import type { ColumnDef, ColumnFiltersState } from "@tanstack/vue-table";
 import {
   Table,
   TableBody,
@@ -85,19 +88,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Button from "@/components/ui/button/Button.vue";
-import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
-import { useRoute, useRouter } from "vue-router";
+import {
+  FlexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  useVueTable,
+} from "@tanstack/vue-table";
 import Input from "@/components/ui/input/Input.vue";
 import CreateCategory from "./CreateCategory.vue";
 import useCategoryStore from "@/stores/categoryStore";
+import { ref } from "vue";
+import { valueUpdater } from "@/components/ui/table/utils";
+import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
 }>();
 
-const route = useRoute();
-const router = useRouter();
 const categoryStore = useCategoryStore();
+const columnFilters = ref<ColumnFiltersState>([]);
 
 const table = useVueTable({
   get data() {
@@ -110,51 +120,21 @@ const table = useVueTable({
     return categoryStore.rowCount;
   },
   getCoreRowModel: getCoreRowModel(),
-  manualPagination: true,
+  getPaginationRowModel: getPaginationRowModel(),
+  autoResetPageIndex: false,
   initialState: {
     pagination: {
-      pageIndex: Number(route.query.page) - 1 || 0,
+      pageIndex: 0,
       pageSize: 5,
     },
   },
-  manualFiltering: true,
+  onColumnFiltersChange: (updaterOrValue) =>
+    valueUpdater(updaterOrValue, columnFilters),
+  getFilteredRowModel: getFilteredRowModel(),
+  state: {
+    get columnFilters() {
+      return columnFilters.value;
+    },
+  },
 });
-
-const updateSearch = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  table.setState((old) => ({
-    ...old,
-    pagination: {
-      ...old.pagination,
-      pageIndex: 0,
-    },
-  }));
-  router.push({
-    query: {
-      ...route.query,
-      search: input.value,
-      page: 1,
-    },
-  });
-};
-
-const previousPage = () => {
-  table.previousPage();
-  router.push({
-    query: {
-      ...route.query,
-      page: Number(route.query.page) - 1,
-    },
-  });
-};
-
-const nextPage = () => {
-  table.nextPage();
-  router.push({
-    query: {
-      ...route.query,
-      page: Number(route.query.page) + 1 || 2,
-    },
-  });
-};
 </script>

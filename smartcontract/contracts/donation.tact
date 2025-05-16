@@ -71,7 +71,7 @@ contract Donation with Ownable {
 
     receive(msg: ReceiveDonation){
         throwUnless(1024, self.campaigns.exists(msg.id));
-        throwUnless(1024,msg.amount > 0);
+        throwUnless(1024, msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
 
@@ -85,7 +85,7 @@ contract Donation with Ownable {
     receive(msg: WithdrawCampaign){
         self.requireOwner();
         throwUnless(1024, self.campaigns.exists(msg.id));
-        throwUnless(1024,msg.amount > 0);
+        throwUnless(1024, msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();

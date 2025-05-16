@@ -19,5 +19,4 @@ export async function run(provider: NetworkProvider) {
     );
 
     const campaignBalance = await donation.getCampaignBalance(1n);
-    console.log(campaignBalance);
 }

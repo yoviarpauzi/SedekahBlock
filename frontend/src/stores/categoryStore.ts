@@ -14,6 +14,7 @@ const useCategoryStore = defineStore("category", {
   state: () => ({
     data: [] as Category[],
     rowCount: 0,
+    isLoading: false,
   }),
 
   actions: {
@@ -22,22 +23,25 @@ const useCategoryStore = defineStore("category", {
       this.rowCount = rowCount;
     },
 
-    async fetchCategories(search: string = "", page: string = "1") {
+    async fetchCategories() {
       try {
-        const response = await axios.get(
-          `${serverURI}/api/categories?page=${page}&search=${search}`
-        );
+        this.isLoading = true;
+        const response = await axios.get(`${serverURI}/api/categories`);
 
         const { data } = response.data;
         const { categories, rowCount } = data;
         this.setCategories(categories, rowCount);
       } catch (error) {
         throw error;
+      } finally {
+        this.isLoading = false;
       }
     },
 
     async addCategories(name: string) {
       try {
+        this.isLoading = true;
+
         await axios.post(
           `${serverURI}/api/categories`,
           {
@@ -48,19 +52,18 @@ const useCategoryStore = defineStore("category", {
           }
         );
 
-        await this.fetchCategories("", "1");
+        await this.fetchCategories();
       } catch (error) {
         throw error;
+      } finally {
+        this.isLoading = false;
       }
     },
 
-    async updateCategories(
-      id: number,
-      name: string,
-      search: string,
-      page: string
-    ) {
+    async updateCategories(id: number, name: string) {
       try {
+        this.isLoading = true;
+
         await axios.put(
           `${serverURI}/api/categories`,
           {
@@ -72,21 +75,27 @@ const useCategoryStore = defineStore("category", {
           }
         );
 
-        await this.fetchCategories(search, page);
+        await this.fetchCategories();
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
-    async deleteCategories(id: number, search: string, page: string) {
+    async deleteCategories(id: number) {
       try {
-        await axios.delete(`${serverURI}/api/categories/${id}`, {
+        this.isLoading = true;
+
+        await axios.delete(`${serverURI}/api/categories/id/${id}`, {
           withCredentials: true,
         });
 
-        await this.fetchCategories(search, page);
+        await this.fetchCategories();
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
   },
