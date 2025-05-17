@@ -1,10 +1,18 @@
 <template>
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Campaigns</h2>
   <div class="mb-5 flex items-center justify-between gap-x-4">
-    <Input
-      class="max-w-sm selection:bg-gray-300 selection:text-black"
-      placeholder="Search title..."
-    />
+    <!-- TODO implement search campaign -->
+    <!-- TODO implement sorting for name, balance, target -->
+    <!-- TODO implement filter for categories_id -->
+    <div class="w-full flex items-center">
+      <Input
+        class="max-w-sm selection:bg-gray-300 selection:text-black"
+        placeholder="Search title..."
+        @input="updateSearch($event)"
+      />
+
+      <Select></Select>
+    </div>
 
     <RouterLink to="/admin/campaigns/create">
       <Button variant="success">Create</Button>
@@ -90,6 +98,7 @@ import {
   TableHead,
   TableRow,
 } from "@/components/ui/table";
+import { Select } from "@/components/ui/select";
 import Input from "@/components/ui/input/Input.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
@@ -123,4 +132,10 @@ const table = useVueTable({
   },
   rowCount: campaignStore.rowCount,
 });
+
+const updateSearch = async (event: Event) => {
+  const input: string = (event.target as HTMLInputElement).value;
+
+  console.log(input);
+};
 </script>

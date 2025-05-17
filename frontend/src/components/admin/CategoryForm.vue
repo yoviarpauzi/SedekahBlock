@@ -18,7 +18,7 @@
             <Input
               v-bind="componentField"
               id="name"
-              class="col-span-3 selection:bg-green-100 selection:text-black font-poppins"
+              class="col-span-3 selection:bg-gray-200 selection:text-black font-poppins"
               placeholder="Enter category name"
             />
           </FormControl>

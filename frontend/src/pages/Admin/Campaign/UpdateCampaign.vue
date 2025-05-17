@@ -33,9 +33,13 @@ const formSchema = toTypedSchema(
       .refine((file) => file?.size <= 5000000, `Max image size is 5MB.`)
       .refine(
         (file) =>
-          ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
-            file?.type
-          ),
+          [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp",
+            "image/avif",
+          ].includes(file?.type),
         "Only .jpg, .jpeg, .png and .webp formats are supported."
       ),
     title: z

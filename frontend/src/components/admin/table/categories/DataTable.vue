@@ -78,7 +78,11 @@
 </template>
 
 <script setup lang="ts" generic="TData, TValue">
-import type { ColumnDef, ColumnFiltersState } from "@tanstack/vue-table";
+import type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+} from "@tanstack/vue-table";
 import {
   Table,
   TableBody,
@@ -93,6 +97,7 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   useVueTable,
 } from "@tanstack/vue-table";
 import Input from "@/components/ui/input/Input.vue";
@@ -108,6 +113,7 @@ const props = defineProps<{
 
 const categoryStore = useCategoryStore();
 const columnFilters = ref<ColumnFiltersState>([]);
+const sorting = ref<SortingState>([]);
 
 const table = useVueTable({
   get data() {
@@ -121,6 +127,8 @@ const table = useVueTable({
   },
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
   autoResetPageIndex: false,
   initialState: {
     pagination: {
@@ -134,6 +142,9 @@ const table = useVueTable({
   state: {
     get columnFilters() {
       return columnFilters.value;
+    },
+    get sorting() {
+      return sorting.value;
     },
   },
 });

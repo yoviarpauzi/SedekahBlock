@@ -223,14 +223,6 @@ const props = defineProps<{
   isFieldDirty: Function;
 }>();
 
-const categoryStore = useCategoryStore();
-
-const df = new DateFormatter("id-ID", {
-  dateStyle: "long",
-});
-
-const tonPrice = ref<number>(0);
-
 const toolbarOptions = [
   { header: [1, 2, 3, false] },
   "bold",
@@ -278,6 +270,12 @@ const modules = [
   },
 ];
 
+const categoryStore = useCategoryStore();
+
+const df = new DateFormatter("id-ID", {
+  dateStyle: "long",
+});
+
 const dateValue = computed({
   get: () => (props.values.end_at ? parseDate(props.values.end_at) : undefined),
   set: (val) => {
@@ -289,8 +287,18 @@ const dateValue = computed({
   },
 });
 
+function onDateChange(val: any) {
+  if (val) {
+    props.setFieldValue("end_at", val.toString());
+  } else {
+    props.setFieldValue("end_at", undefined);
+  }
+}
+
+const tonPrice = ref<number>(0);
+
 const totalTargetPrice = computed(() => {
-  return (tonPrice.value || 0) * (props.values.target || 0);
+  return tonPrice.value * (props.values.target ?? 0);
 });
 
 function onFileChange(event: Event) {
@@ -302,14 +310,6 @@ function onFileChange(event: Event) {
 
 function onInputChange(field: any, value: any) {
   props.setFieldValue(field, value);
-}
-
-function onDateChange(val: any) {
-  if (val) {
-    props.setFieldValue("end_at", val.toString());
-  } else {
-    props.setFieldValue("end_at", undefined);
-  }
 }
 
 onMounted(async () => {

@@ -2,12 +2,12 @@
   <SidebarGroup class="group-data-[collapsible=icon]:hidden font-poppins">
     <SidebarMenu>
       <SidebarMenuItem v-for="item in projects" :key="item.name">
-        <SidebarMenuButton as-child>
-          <RouterLink :to="item.url">
+        <RouterLink :to="item.url" v-slot="{ isExactActive }">
+          <SidebarMenuButton :isActive="isExactActive">
             <component :is="item.icon" />
             <span>{{ item.name }}</span>
-          </RouterLink>
-        </SidebarMenuButton>
+          </SidebarMenuButton>
+        </RouterLink>
       </SidebarMenuItem>
     </SidebarMenu>
   </SidebarGroup>

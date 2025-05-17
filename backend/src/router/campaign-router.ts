@@ -21,7 +21,13 @@ function createMulterUploader(destinationFolder: string) {
       },
     }),
     fileFilter(req, file, callback) {
-      const allowTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+      const allowTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp",
+        "image/avif",
+      ];
       if (allowTypes.includes(file.mimetype)) {
         callback(null, true);
       } else {
