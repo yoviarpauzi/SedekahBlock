@@ -3,16 +3,17 @@ import { Donation } from '../wrappers/Donation';
 import { NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider) {
-    const ownerAddress: Address = Address.parse('0QBEsW5QAOSjha2T2a6PKpVet2H5ToDg1f06P_VkQZUMnUQ3');
-    const donation: OpenedContract<Donation> = provider.open(await Donation.fromInit(ownerAddress));
+    const contractAddress: Address = Address.parse('EQA9uLStATGNJmfPskYmaWE_N0iQCDMyxEMQ0cjQShSvN51L');
+    const donation: OpenedContract<Donation> = provider.open(Donation.fromAddress(contractAddress));
 
     await donation.send(
         provider.sender(),
         {
             value: toNano('0.05'),
         },
-        null,
+        {
+            $$type: 'DeleteCampaign',
+            id: 1n,
+        },
     );
-
-    await provider.waitForDeploy(donation.address);
 }

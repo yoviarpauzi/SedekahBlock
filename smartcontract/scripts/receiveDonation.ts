@@ -3,7 +3,7 @@ import { Donation } from '../wrappers/Donation';
 import { NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider) {
-    const contractAddress: Address = Address.parse('');
+    const contractAddress: Address = Address.parse('EQA9uLStATGNJmfPskYmaWE_N0iQCDMyxEMQ0cjQShSvN51L');
     const donation: OpenedContract<Donation> = provider.open(Donation.fromAddress(contractAddress));
 
     await donation.send(
@@ -17,6 +17,4 @@ export async function run(provider: NetworkProvider) {
             amount: toNano(1),
         },
     );
-
-    const campaignBalance = await donation.getCampaignBalance(1n);
 }

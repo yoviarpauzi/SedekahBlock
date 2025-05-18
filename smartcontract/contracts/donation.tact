@@ -2,13 +2,11 @@ import "@stdlib/ownable";
 
 struct Campaign {
     id: Int as uint32;
-    name: String;
     balance: Int as uint256;
 }
 
 message CreateCampaign {
     id: Int as uint32;
-    name: String;
 }
 
 message ReceiveDonation {
@@ -40,10 +38,8 @@ contract Donation with Ownable {
         cashback(sender())
     }
 
-    get fun campaignName(id: Int): String{
-        let campaign = self.campaigns.get(id);
-
-        return campaign!!.name;
+    get fun isCampaignExist(id: Int): Bool{
+        return self.campaigns.exists(id);
     }
 
     get fun campaignBalance(id: Int): Int{
@@ -58,45 +54,44 @@ contract Donation with Ownable {
 
     receive(msg: CreateCampaign) {
         self.requireOwner();
-        throwUnless(1024,!self.campaigns.exists(msg.id));
+        throwUnless(134, !self.campaigns.exists(msg.id));
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
-            name: msg.name,
             balance: 0,
         });
 
         self.numOfCampaign += 1;
+
+        self.reply("Success create campaign".asComment());
     }
 
     receive(msg: ReceiveDonation){
-        throwUnless(1024, self.campaigns.exists(msg.id));
-        throwUnless(1024, msg.amount > 0);
+        throwUnless(134, self.campaigns.exists(msg.id));
+        throwUnless(134, msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
-            name: campaign!!.name,
             balance: campaign!!.balance + msg.amount,
         });
     }
 
     receive(msg: WithdrawCampaign){
         self.requireOwner();
-        throwUnless(1024, self.campaigns.exists(msg.id));
-        throwUnless(1024, msg.amount > 0);
+        throwUnless(134, self.campaigns.exists(msg.id));
+        throwUnless(134, msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
 
-        throwUnless(1024,campaign!!.balance >= ton("1"));
-        throwUnless(1024, campaign!!.balance >= msg.amount);
-        throwUnless(1024, balance > msg.amount);
+        throwUnless(37, campaign!!.balance >= ton("1"));
+        throwUnless(37, campaign!!.balance >= msg.amount);
+        throwUnless(37, balance > msg.amount);
 
         self.campaigns.set(msg.id, Campaign{
             id: msg.id,
-            name: campaign!!.name,
             balance: campaign!!.balance - msg.amount,
         });
 
@@ -108,8 +103,8 @@ contract Donation with Ownable {
 
     receive(msg: DeleteCampaign) {
         self.requireOwner();
-        throwUnless(1024, self.campaigns.exists(msg.id));
-        
+        throwUnless(134, self.campaigns.exists(msg.id));
+
         let _ = self.campaigns.del(msg.id);
         self.numOfCampaign -= 1;
     }

@@ -42,13 +42,11 @@ describe('Donation', () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 1n,
-            name: 'campaign 1',
         };
 
         const createMessage2: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 2n,
-            name: 'campaign 2',
         };
 
         await donation.send(
@@ -68,23 +66,18 @@ describe('Donation', () => {
         );
 
         const totalCampaign = await donation.getTotalCampaign();
-        const campaign1Name = await donation.getCampaignName(1n);
-        const campaign1Balance = await donation.getCampaignBalance(1n);
-        const campaign2Name = await donation.getCampaignName(2n);
-        const campaign2Balance = await donation.getCampaignBalance(2n);
+        const campaign1Exist = await donation.getIsCampaignExist(1n);
+        const campaign2Exist = await donation.getIsCampaignExist(2n);
 
         expect(totalCampaign).toBe(2n);
-        expect(campaign1Name).toBe('campaign 1');
-        expect(campaign1Balance).toBe(0n);
-        expect(campaign2Name).toBe('campaign 2');
-        expect(campaign2Balance).toBe(0n);
+        expect(campaign1Exist).toBeTruthy();
+        expect(campaign2Exist).toBeTruthy();
     });
 
     it('should receive donation', async () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 1n,
-            name: 'campaign 1',
         };
 
         const donateMessage: ReceiveDonation = {
@@ -119,7 +112,6 @@ describe('Donation', () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 1n,
-            name: 'campaign 1',
         };
 
         const donateMessage: ReceiveDonation = {
@@ -172,7 +164,6 @@ describe('Donation', () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 1n,
-            name: 'campaign 1',
         };
 
         const deleteMessage: DeleteCampaign = {
