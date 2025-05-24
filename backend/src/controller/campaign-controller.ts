@@ -3,7 +3,6 @@ import campaignService from "../services/campaign-service";
 import ResponseError from "../error/response-error";
 import path from "path";
 import fs from "fs/promises";
-import { error } from "console";
 
 const moveImageFromTemp = async (req: Request) => {
   const urlRegex = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
@@ -36,6 +35,12 @@ const moveImageFromTemp = async (req: Request) => {
       throw err;
     }
   }
+};
+
+const extractImageFilenames = (story?: string): string[] => {
+  return Array.from(story?.match(/\/campaigns\/content\/([^"' ]+)/g) || [])
+    .map((url) => url.split("/").pop() || "")
+    .filter(Boolean);
 };
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
@@ -82,12 +87,6 @@ export const update = async (
     }
 
     await moveImageFromTemp(req);
-
-    const extractImageFilenames = (story?: string): string[] => {
-      return Array.from(story?.match(/\/campaigns\/content\/([^"' ]+)/g) || [])
-        .map((url) => url.split("/").pop() || "")
-        .filter(Boolean);
-    };
 
     const body: any = {
       ...req.body,
@@ -165,7 +164,6 @@ const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     res.status(200).json({
-      status: "success",
       message: "success retrieve data",
       data: campaign,
     });

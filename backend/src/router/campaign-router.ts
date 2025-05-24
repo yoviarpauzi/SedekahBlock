@@ -9,7 +9,6 @@ const uploadCampaignThumbnail = createMulterUploader(
 const uploadCampaignContent = createMulterUploader(
   "./../temp/campaigns/content"
 );
-
 const router = express.Router();
 
 router.post(
