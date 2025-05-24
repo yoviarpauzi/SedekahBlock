@@ -41,10 +41,10 @@ function createMulterUploader(destinationFolder: string) {
 }
 
 const uploadCampaignThumbnail = createMulterUploader(
-  "./../storage/campaign/thumbnail"
+  "./../storage/campaigns/thumbnail"
 );
 const uploadCampaignContent = createMulterUploader(
-  "./../temp/campaign/content"
+  "./../temp/campaigns/content"
 );
 
 const router = express.Router();

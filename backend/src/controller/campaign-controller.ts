@@ -6,9 +6,9 @@ import fs from "fs/promises";
 import { error } from "console";
 
 const moveImageFromTemp = async (req: Request) => {
-  const urlRegex = /http?:\/\/[^"' ]+\/campaign\/content\/([^"' ]+)/g;
-  const tempDir = path.resolve(__dirname, "./../temp/campaign/content");
-  const storageDir = path.resolve(__dirname, "./../storage/campaign/content");
+  const urlRegex = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
+  const tempDir = path.resolve(__dirname, "./../temp/campaigns/content");
+  const storageDir = path.resolve(__dirname, "./../storage/campaigns/content");
 
   const filenamesToMove = new Set<string>();
   let match;
@@ -27,7 +27,7 @@ const moveImageFromTemp = async (req: Request) => {
 
       const tempUrl = `${req.protocol}://${req.get(
         "host"
-      )}/campaign/content/${filename}`;
+      )}/campaigns/content/${filename}`;
       req.body.campaign_story = req.body.campaign_story.replace(
         new RegExp(tempUrl, "g"),
         tempUrl
@@ -42,7 +42,7 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await moveImageFromTemp(req);
 
-    const thumbnail = `campaign/thumbnail/${req.file?.filename}`;
+    const thumbnail = `campaigns/thumbnail/${req.file?.filename}`;
 
     const body = {
       ...req.body,
@@ -84,7 +84,7 @@ export const update = async (
     await moveImageFromTemp(req);
 
     const extractImageFilenames = (story?: string): string[] => {
-      return Array.from(story?.match(/\/campaign\/content\/([^"' ]+)/g) || [])
+      return Array.from(story?.match(/\/campaigns\/content\/([^"' ]+)/g) || [])
         .map((url) => url.split("/").pop() || "")
         .filter(Boolean);
     };
@@ -97,7 +97,7 @@ export const update = async (
     };
 
     if (req.file?.filename) {
-      const newThumbnail = `campaign/thumbnail/${req.file.filename}`;
+      const newThumbnail = `campaigns/thumbnail/${req.file.filename}`;
       if (oldCampaign.thumbnail) {
         const oldThumbnailPath = path.resolve(
           __dirname,
@@ -127,7 +127,7 @@ export const update = async (
         removedImages.map(async (filename) => {
           const filePath = path.resolve(
             __dirname,
-            `../storage/campaign/content/${filename}`
+            `../storage/campaigns/content/${filename}`
           );
           try {
             await fs.unlink(filePath);
@@ -224,7 +224,7 @@ const uploadCampaignImage = async (
       throw new ResponseError(400, "no file uploaded");
     }
 
-    const fileUrl = `${req.protocol}://${req.get("host")}/campaign/content/${
+    const fileUrl = `${req.protocol}://${req.get("host")}/campaigns/content/${
       req.file.filename
     }`;
 
