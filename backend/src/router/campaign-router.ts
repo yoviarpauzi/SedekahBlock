@@ -1,44 +1,7 @@
 import express from "express";
 import campaignController from "../controller/campaign-controller";
 import adminMiddleware from "../middleware/admin-auth";
-import multer from "multer";
-import path from "path";
-import ResponseError from "../error/response-error";
-
-function createMulterUploader(destinationFolder: string) {
-  return multer({
-    storage: multer.diskStorage({
-      destination(req, file, callback) {
-        callback(null, path.resolve(__dirname, destinationFolder));
-      },
-      filename(req, file, callback) {
-        const uniqueSuffix =
-          Date.now() +
-          "-" +
-          Math.round(Math.random() * 1e9) +
-          path.extname(file.originalname);
-        callback(null, uniqueSuffix);
-      },
-    }),
-    fileFilter(req, file, callback) {
-      const allowTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-        "image/avif",
-      ];
-      if (allowTypes.includes(file.mimetype)) {
-        callback(null, true);
-      } else {
-        callback(new ResponseError(415, "unsupported media type"));
-      }
-    },
-    limits: {
-      fileSize: 10 * 1024 * 1024,
-    },
-  });
-}
+import createMulterUploader from "../utils/createMulterUploader";
 
 const uploadCampaignThumbnail = createMulterUploader(
   "./../storage/campaigns/thumbnail"
