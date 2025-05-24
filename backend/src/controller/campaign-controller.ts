@@ -1,42 +1,46 @@
 import { NextFunction, Request, Response } from "express";
-import campaignValidation from "../validations/campaign-validation";
 import campaignService from "../services/campaign-service";
 import ResponseError from "../error/response-error";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
+import { error } from "console";
+
+const moveImageFromTemp = async (req: Request) => {
+  const urlRegex = /http?:\/\/[^"' ]+\/campaign\/content\/([^"' ]+)/g;
+  const tempDir = path.resolve(__dirname, "./../temp/campaign/content");
+  const storageDir = path.resolve(__dirname, "./../storage/campaign/content");
+
+  const filenamesToMove = new Set<string>();
+  let match;
+  while ((match = urlRegex.exec(req.body.campaign_story)) !== null) {
+    filenamesToMove.add(match[1]);
+  }
+
+  await fs.mkdir(storageDir, { recursive: true });
+
+  for (const filename of filenamesToMove) {
+    const tempPath = path.join(tempDir, filename);
+    const storagePath = path.join(storageDir, filename);
+
+    try {
+      await fs.rename(tempPath, storagePath);
+
+      const tempUrl = `${req.protocol}://${req.get(
+        "host"
+      )}/campaign/content/${filename}`;
+      req.body.campaign_story = req.body.campaign_story.replace(
+        new RegExp(tempUrl, "g"),
+        tempUrl
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+};
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const urlRegex = /http?:\/\/[^"' ]+\/campaign\/content\/([^"' ]+)/g;
-    const tempDir = path.resolve(__dirname, "./../temp/campaign/content");
-    const storageDir = path.resolve(__dirname, "./../storage/campaign/content");
-
-    const filenamesToMove = new Set<string>();
-    let match;
-    while ((match = urlRegex.exec(req.body.campaign_story)) !== null) {
-      filenamesToMove.add(match[1]);
-    }
-
-    if (!fs.existsSync(storageDir)) {
-      fs.mkdirSync(storageDir, { recursive: true });
-    }
-
-    filenamesToMove.forEach((filename) => {
-      const tempPath = path.join(tempDir, filename);
-      const storagePath = path.join(storageDir, filename);
-
-      if (fs.existsSync(tempPath)) {
-        fs.renameSync(tempPath, storagePath);
-
-        const tempUrl = `${req.protocol}://${req.get(
-          "host"
-        )}/campaign/content/${filename}`;
-        req.body.campaign_story = req.body.campaign_story.replace(
-          new RegExp(tempUrl, "g"),
-          tempUrl
-        );
-      }
-    });
+    await moveImageFromTemp(req);
 
     const thumbnail = `campaign/thumbnail/${req.file?.filename}`;
 
@@ -45,32 +49,106 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
       categories_id: Number(req.body.categories_id),
       target: Number(req.body.target),
       end_at: new Date(req.body.end_at),
-      thumbnail: thumbnail,
+      thumbnail,
     };
 
-    const campaign = campaignService.create(body);
+    const campaign = await campaignService.create(body);
 
     res.status(200).json({
       message: "success",
+      data: campaign,
     });
   } catch (err) {
     next(err);
   }
 };
 
-const update = async (req: Request, res: Response, next: NextFunction) => {
+export const update = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const id = parseInt(req.params.id);
-    const validate = campaignValidation.upsert.parse(req.body);
+    const id = Number(req.body.id);
 
-    const campaign = await campaignService.update(id, validate);
+    if (isNaN(id)) {
+      throw new ResponseError(400, "Invalid campaign id");
+    }
+
+    const oldCampaign = await campaignService.getCampaign(id);
+
+    if (!oldCampaign) {
+      throw new ResponseError(404, "Campaign ID not found");
+    }
+
+    await moveImageFromTemp(req);
+
+    const extractImageFilenames = (story?: string): string[] => {
+      return Array.from(story?.match(/\/campaign\/content\/([^"' ]+)/g) || [])
+        .map((url) => url.split("/").pop() || "")
+        .filter(Boolean);
+    };
+
+    const body: any = {
+      ...req.body,
+      categories_id: Number(req.body.categories_id),
+      target: Number(req.body.target),
+      end_at: new Date(req.body.end_at),
+    };
+
+    if (req.file?.filename) {
+      const newThumbnail = `campaign/thumbnail/${req.file.filename}`;
+      if (oldCampaign.thumbnail) {
+        const oldThumbnailPath = path.resolve(
+          __dirname,
+          `../storage/${oldCampaign.thumbnail}`
+        );
+        try {
+          await fs.unlink(oldThumbnailPath);
+        } catch (err) {
+          next(err);
+        }
+      }
+      body.thumbnail = newThumbnail;
+    } else {
+      body.thumbnail = oldCampaign.thumbnail;
+    }
+
+    const newStory = req.body.campaign_story;
+    const oldStory = oldCampaign.campaign_story!;
+
+    if (newStory && newStory !== oldStory) {
+      const oldImages = extractImageFilenames(oldStory);
+      const newImages = extractImageFilenames(newStory);
+
+      const removedImages = oldImages.filter((img) => !newImages.includes(img));
+
+      await Promise.all(
+        removedImages.map(async (filename) => {
+          const filePath = path.resolve(
+            __dirname,
+            `../storage/campaign/content/${filename}`
+          );
+          try {
+            await fs.unlink(filePath);
+          } catch (err) {
+            next(err);
+          }
+        })
+      );
+
+      body.campaign_story = newStory;
+    } else {
+      body.campaign_story = oldStory;
+    }
+
+    delete body.id;
+
+    const campaign = await campaignService.update(id, body);
 
     res.status(200).json({
-      status: "success",
       message: "success update data",
-      data: {
-        ...campaign,
-      },
+      data: campaign,
     });
   } catch (err) {
     next(err);
@@ -80,7 +158,6 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
 const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = parseInt(req.params.id);
-
     const campaign = await campaignService.getCampaign(id);
 
     if (!campaign) {
@@ -90,9 +167,7 @@ const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).json({
       status: "success",
       message: "success retrieve data",
-      data: {
-        ...campaign,
-      },
+      data: campaign,
     });
   } catch (err) {
     next(err);
@@ -105,15 +180,9 @@ const getAllCampaign = async (
   next: NextFunction
 ) => {
   try {
-    const search = req.query?.search?.toString() || "";
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 5;
+    const query = { ...req.query, page: req.query.page ?? "1" };
 
-    const [campaigns, rowCount] = await campaignService.getAllCampaign(
-      page,
-      search,
-      limit
-    );
+    const [campaigns, rowCount] = await campaignService.getAllCampaign(query);
 
     res.status(200).json({
       message: "success retrieve campaigns",
@@ -155,11 +224,9 @@ const uploadCampaignImage = async (
       throw new ResponseError(400, "no file uploaded");
     }
 
-    const filename = req.file.filename;
-
-    const fileUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/campaign/content/${filename}`;
+    const fileUrl = `${req.protocol}://${req.get("host")}/campaign/content/${
+      req.file.filename
+    }`;
 
     res.status(200).json({
       message: "success upload image content",
@@ -170,6 +237,8 @@ const uploadCampaignImage = async (
   }
 };
 
+const destroy = async (req: Request, res: Response, next: NextFunction) => {};
+
 export default {
   create,
   update,
@@ -177,4 +246,5 @@ export default {
   getAllCampaign,
   isTitleExist,
   uploadCampaignImage,
+  destroy,
 };

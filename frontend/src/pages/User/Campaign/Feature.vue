@@ -15,10 +15,12 @@
             <SelectGroup>
               <SelectLabel>Kategori</SelectLabel>
               <SelectItem value="all">Semua</SelectItem>
-              <SelectItem value="natural_disasters">Bencana Alam</SelectItem>
-              <SelectItem value="education">Bantuan Pendidikan</SelectItem>
-              <SelectItem value="humanity">Kemanusiaan</SelectItem>
-              <SelectItem value="social_activities">Kegiatan Sosial</SelectItem>
+              <SelectItem
+                v-for="item in categoryStore.data"
+                :value="item.id"
+                :key="item.id"
+                >{{ item.name }}</SelectItem
+              >
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -32,8 +34,8 @@
             <SelectGroup>
               <SelectLabel>Status</SelectLabel>
               <SelectItem value="all">Semua</SelectItem>
-              <SelectItem value="disaster">Berlangsung</SelectItem>
-              <SelectItem value="education">Selesai</SelectItem>
+              <SelectItem value="ongoing">Berlangsung</SelectItem>
+              <SelectItem value="conclude">Berakhir</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -53,10 +55,14 @@ import {
   SelectValue,
   SelectLabel,
 } from "@/components/ui/select";
+import useCategoryStore from "@/stores/categoryStore";
+import { onMounted } from "vue";
 
 defineEmits<{
   (e: "search"): void;
 }>();
+
+const categoryStore = useCategoryStore();
 
 const campaignSearch = defineModel<string>("campaignSearch", {
   default: "",
@@ -66,5 +72,9 @@ const campaignCategory = defineModel<string>("campaignCategory", {
 });
 const campaignStatus = defineModel<string>("campaignStatus", {
   default: "all",
+});
+
+onMounted(async () => {
+  await categoryStore.fetchCategories();
 });
 </script>

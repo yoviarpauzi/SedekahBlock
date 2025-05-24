@@ -169,6 +169,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useUserStore from "@/stores/authStore";
+import showToast from "@/utils/showToast";
 
 const route = useRoute();
 const header = ref<HTMLElement | null>(null);
@@ -180,7 +181,7 @@ const disconnectWallet = async () => {
     await tonConnect.disconnect();
     sessionStorage.clear();
   } catch (err) {
-    console.log(err);
+    showToast("error", "error", "error disconnect wallet");
   }
 };
 

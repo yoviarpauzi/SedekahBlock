@@ -3,7 +3,7 @@
   <CampaignForm
     :submit="updateCampaign"
     :set-field-value="setFieldValue"
-    action="Create"
+    action="Update"
     :is-field-dirty="isFieldDirty"
     :values="values"
   />
@@ -19,11 +19,17 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { serverURI } from "@/utils/environment";
 import { ref, onMounted } from "vue";
 import showToast from "@/utils/showToast";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
+import useCampaignStore from "@/stores/campaignStore";
+import { DateFormatter } from "@internationalized/date";
 
 const router = useRouter();
+const route = useRoute();
 const tonPrice = ref<number>(0);
+const campaignId = Number(route.params.id);
+const categoryStore = useCategoryStore();
+const campaignStore = useCampaignStore();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -41,7 +47,8 @@ const formSchema = toTypedSchema(
             "image/avif",
           ].includes(file?.type),
         "Only .jpg, .jpeg, .png and .webp formats are supported."
-      ),
+      )
+      .optional(),
     title: z
       .string()
       .max(100)
@@ -51,6 +58,14 @@ const formSchema = toTypedSchema(
             `${serverURI}/api/campaigns/check?title=${title}`
           );
           const { data } = res.data;
+
+          if (
+            data === true &&
+            title.trim() == campaignStore.currentCampaign.title.trim()
+          ) {
+            return true;
+          }
+
           return !data;
         },
         {
@@ -77,10 +92,14 @@ const formSchema = toTypedSchema(
 const { isFieldDirty, handleSubmit, resetForm, setFieldValue, values } =
   useForm({
     validationSchema: formSchema,
-    initialValues: {},
+    initialValues: {
+      id: campaignStore.currentCampaign.id,
+      title: campaignStore.currentCampaign.title,
+      categories_id: Number(campaignStore.currentCampaign.categories_id),
+      target: Number(campaignStore.currentCampaign.target),
+      campaign_story: campaignStore.currentCampaign.campaign_story,
+    },
   });
-
-const categoryStore = useCategoryStore();
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
@@ -97,16 +116,16 @@ const updateCampaign = handleSubmit(async (values) => {
         if (value instanceof File) {
           form.append(key, value);
         } else {
-          form.append(key, value.toString());
+          form.append(key, value?.toString() ?? "");
         }
       }
     }
 
-    await axios.post(`${serverURI}/api/campaigns`, form, {
+    await axios.put(`${serverURI}/api/campaigns`, form, {
       withCredentials: true,
     });
 
-    showToast("success", "success", "success create campaign");
+    showToast("success", "success", "success update campaign");
     resetForm();
     router.push("/admin/campaigns");
   } catch (err) {
@@ -114,5 +133,19 @@ const updateCampaign = handleSubmit(async (values) => {
       showToast("error", "error", err.message);
     }
   }
+});
+
+onMounted(async () => {
+  await campaignStore.getCampaign(campaignId);
+
+  resetForm({
+    values: {
+      id: campaignStore.currentCampaign.id,
+      title: campaignStore.currentCampaign.title,
+      categories_id: Number(campaignStore.currentCampaign.categories_id),
+      target: Number(campaignStore.currentCampaign.target),
+      campaign_story: campaignStore.currentCampaign.campaign_story,
+    },
+  });
 });
 </script>

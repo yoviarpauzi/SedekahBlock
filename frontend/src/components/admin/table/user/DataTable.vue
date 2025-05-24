@@ -98,6 +98,7 @@ const userStore = useUserStore();
 
 const route = useRoute();
 const router = useRouter();
+const pageQuery = route.query.page ?? "1";
 
 const table = useVueTable({
   get data() {
@@ -111,18 +112,18 @@ const table = useVueTable({
   },
   getCoreRowModel: getCoreRowModel(),
   manualPagination: true,
+  manualFiltering: true,
   initialState: {
     pagination: {
-      pageIndex: Number(route.query.page) - 1 || 0,
+      pageIndex: Number(pageQuery) - 1,
       pageSize: 5,
     },
   },
-  manualFiltering: true,
 });
 
-const updateSearch = (event: Event) => {
+const updateSearch = async (event: Event) => {
   const input = event.target as HTMLInputElement;
-  userStore.fetchUsers(1, input.value);
+
   table.setState((old) => ({
     ...old,
     pagination: {
@@ -130,6 +131,7 @@ const updateSearch = (event: Event) => {
       pageIndex: 0,
     },
   }));
+
   router.push({
     query: {
       ...route.query,

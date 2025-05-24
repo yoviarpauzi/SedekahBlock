@@ -41,6 +41,10 @@ export const routes: RouteRecordRaw[] = [
     children: [
       {
         path: "",
+        redirect: "/admin/dashboard",
+      },
+      {
+        path: "dashboard",
         component: Dashboard,
       },
       {

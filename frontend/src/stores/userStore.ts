@@ -22,12 +22,16 @@ export const useUserStore = defineStore("user", {
       this.rowCount = rowCount;
     },
 
-    async fetchUsers(page: number = 1, search: string = "") {
+    async fetchUsers(limit: number = 5) {
       try {
+        const params = new URLSearchParams(window.location.search);
+
+        params.set("limit", limit.toString());
+
         this.isLoading = true;
 
         const res = await axios.get(
-          `${serverURI}/api/users?page=${page}&search=${search}`,
+          `${serverURI}/api/users?${params.toString()}`,
           {
             withCredentials: true,
           }

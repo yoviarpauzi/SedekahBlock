@@ -1,17 +1,45 @@
 <template>
   <h2 class="text-2xl font-bold text-gray-800 mb-4">Campaigns</h2>
-  <div class="mb-5 flex items-center justify-between gap-x-4">
-    <!-- TODO implement search campaign -->
-    <!-- TODO implement sorting for name, balance, target -->
-    <!-- TODO implement filter for categories_id -->
-    <div class="w-full flex items-center">
+  <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center">
+    <div class="w-full flex flex-col gap-4 md:flex-row md:items-center">
       <Input
         class="max-w-sm selection:bg-gray-300 selection:text-black"
         placeholder="Search title..."
-        @input="updateSearch($event)"
+        v-model="search"
       />
 
-      <Select></Select>
+      <div class="flex gap-x-4 items-center">
+        <Select v-model="selectCategory">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem :value="0">All</SelectItem>
+              <SelectItem
+                v-for="item in categoryStore.data"
+                :key="item.id"
+                :value="item.id"
+              >
+                {{ item.name }}
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        <Select v-model="selectType">
+          <SelectTrigger class="w-[180px]">
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="ongoing">Berlangsung</SelectItem>
+              <SelectItem value="conclude">Berakhir</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
 
     <RouterLink to="/admin/campaigns/create">
@@ -72,7 +100,7 @@
         variant="outline"
         size="sm"
         :disabled="!table.getCanPreviousPage()"
-        @click="table.previousPage()"
+        @click="prevPage"
       >
         Previous
       </Button>
@@ -80,7 +108,7 @@
         variant="outline"
         size="sm"
         :disabled="!table.getCanNextPage()"
-        @click="table.nextPage()"
+        @click="nextPage"
       >
         Next
       </Button>
@@ -89,7 +117,7 @@
 </template>
 
 <script setup lang="ts" generic="TData, TValue">
-import type { ColumnDef } from "@tanstack/vue-table";
+import type { ColumnDef, SortingState } from "@tanstack/vue-table";
 import {
   Table,
   TableBody,
@@ -98,44 +126,183 @@ import {
   TableHead,
   TableRow,
 } from "@/components/ui/table";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+} from "@/components/ui/select";
 import Input from "@/components/ui/input/Input.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import useCampaignStore from "@/stores/campaignStore";
 import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
+import useCategoryStore from "@/stores/categoryStore";
+import { onMounted, ref, watch } from "vue";
+import { valueUpdater } from "@/components/ui/table/utils";
 
 const route = useRoute();
-const pageIndex = route.query.page ? Number(route.query.page) - 1 : 0;
+const router = useRouter();
 const campaignStore = useCampaignStore();
+const categoryStore = useCategoryStore();
+const page = route.query.page ?? "1";
+const categoryQuery = route.query.categories_id ?? "0";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
 }>();
 
+type Type = "all" | "ongoing" | "conclude";
+
+const selectCategory = ref<number>(Number(categoryQuery));
+const selectType = ref<Type>(
+  (route.query.category_type?.toString() as Type) ?? "all"
+);
+const search = ref(route.query.search?.toString() ?? "");
+const sorting = ref<SortingState>();
+
 const table = useVueTable({
-  get data() {
-    return campaignStore.data as TData[];
-  },
   get columns() {
     return props.columns;
   },
+  get data() {
+    return campaignStore.data as TData[];
+  },
+  get rowCount() {
+    return campaignStore.rowCount;
+  },
   getCoreRowModel: getCoreRowModel(),
   manualPagination: true,
-  autoResetPageIndex: true,
-  state: {
+  manualSorting: true,
+  initialState: {
     pagination: {
-      pageIndex: pageIndex,
+      pageIndex: Number(page) - 1,
       pageSize: 5,
     },
   },
-  rowCount: campaignStore.rowCount,
+  state: {
+    get sorting() {
+      return sorting.value;
+    },
+  },
+  onSortingChange: (updaterOrValue) => {
+    valueUpdater(updaterOrValue, sorting);
+
+    router.push({
+      query: {
+        ...route.query,
+      },
+    });
+  },
 });
 
-const updateSearch = async (event: Event) => {
-  const input: string = (event.target as HTMLInputElement).value;
+const prevPage = () => {
+  table.previousPage();
 
-  console.log(input);
+  router.push({
+    query: {
+      ...route.query,
+      page: table.getState().pagination.pageIndex + 1,
+    },
+  });
 };
+
+const nextPage = () => {
+  table.nextPage();
+
+  router.push({
+    query: {
+      ...route.query,
+      page: table.getState().pagination.pageIndex + 1,
+    },
+  });
+};
+
+const updateSearch = async (search: string) => {
+  if (search == "") {
+    const updateQuery = { ...route.query };
+
+    delete updateQuery.search;
+    delete updateQuery.page;
+
+    router.push({
+      query: updateQuery,
+    });
+
+    return;
+  }
+
+  router.push({
+    query: {
+      ...route.query,
+      search: search,
+      page: 1,
+    },
+  });
+};
+
+const updateCategory = async (categories_id: number) => {
+  const updateQuery = { ...route.query };
+
+  delete updateQuery.page;
+
+  if (categories_id == 0) {
+    delete updateQuery.categories_id;
+
+    router.push({
+      query: updateQuery,
+    });
+
+    return;
+  }
+
+  router.push({
+    query: {
+      ...route.query,
+      categories_id: categories_id,
+    },
+  });
+};
+
+const updateType = async (type: Type = "all") => {
+  const updateQuery = { ...route.query };
+
+  delete updateQuery.page;
+
+  if (type == "all") {
+    delete updateQuery.category_type;
+
+    router.push({
+      query: updateQuery,
+    });
+
+    return;
+  }
+
+  router.push({
+    query: {
+      ...route.query,
+      category_type: type,
+    },
+  });
+};
+
+watch(selectCategory, (newValue: number) => {
+  updateCategory(newValue);
+});
+
+watch(selectType, (newValue: Type) => {
+  updateType(newValue);
+});
+
+watch(search, (newValue: string) => {
+  updateSearch(newValue);
+});
+
+onMounted(async () => {
+  await categoryStore.fetchCategories();
+});
 </script>

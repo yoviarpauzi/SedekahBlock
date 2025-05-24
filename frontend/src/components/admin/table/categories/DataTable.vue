@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="text-2xl font-bold text-gray-800 mb-4">Categories</h2>
-    <div class="mb-5 flex items-center justify-between">
+    <div class="mb-5 flex items-center justify-between gap-x-4">
       <Input
         class="max-w-sm selection:bg-gray-300 selection:text-black"
         placeholder="Search name..."

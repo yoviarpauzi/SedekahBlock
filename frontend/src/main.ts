@@ -28,8 +28,8 @@ const vueton = createVueton({
 const pinia = createPinia();
 
 app.component("QuillEditor", QuillEditor);
-app.use(vueton);
 app.use(router);
+app.use(vueton);
 app.use(pinia);
 
 router.beforeEach(async (to, from, next) => {

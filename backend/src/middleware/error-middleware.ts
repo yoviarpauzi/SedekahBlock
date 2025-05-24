@@ -45,7 +45,7 @@ const errorMiddleware = (
     logger.error("server internal error");
 
     res.status(500).json({
-      message: "server internal error",
+      message: err.message,
     });
   }
 };

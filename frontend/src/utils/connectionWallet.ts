@@ -19,7 +19,7 @@ const connectWallet = async () => {
 
     await tonConnect.openModal();
   } catch (err) {
-    console.log(err);
+    throw err;
   }
 };
 

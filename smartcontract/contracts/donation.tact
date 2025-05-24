@@ -62,8 +62,6 @@ contract Donation with Ownable {
         });
 
         self.numOfCampaign += 1;
-
-        self.reply("Success create campaign".asComment());
     }
 
     receive(msg: ReceiveDonation){

@@ -65,7 +65,7 @@ const data = {
   projects: [
     {
       name: "Dashboard",
-      url: "/admin",
+      url: "/admin/dashboard",
       icon: LayoutDashboard,
     },
     {

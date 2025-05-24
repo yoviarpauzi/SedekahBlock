@@ -74,16 +74,16 @@ const getUserById = async (id: number) => {
   }
 };
 
-const getAllUser = async (page: number, search: string) => {
-  const limit = 5;
-  const skip = (page - 1) * limit;
+const getAllUser = async (query: any, limit: number = 5) => {
+  query.page = Number(query.page) ?? 1;
+  const skip = (query.page - 1) * limit;
 
   const where: {
     name?: { contains: string; mode: "insensitive" };
   } = {
-    ...(search && {
+    ...(query.search && {
       name: {
-        contains: search,
+        contains: query.search,
         mode: "insensitive",
       },
     }),
@@ -93,8 +93,6 @@ const getAllUser = async (page: number, search: string) => {
     prisma.user.findMany({ skip, take: limit, where }),
     prisma.user.count({ where }),
   ]);
-
-  console.log(users);
 
   return [users, rowCount];
 };

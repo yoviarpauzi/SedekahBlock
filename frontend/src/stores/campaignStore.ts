@@ -26,20 +26,36 @@ const useCampaignStore = defineStore("campaign", {
       this.rowCount = rowCount;
     },
 
-    async getCampaigns(page: number = 1, search: string = "") {
+    async getCampaigns(limit: number = 5) {
       try {
         this.isLoading = true;
 
+        const params = new URLSearchParams(window.location.search);
+
+        params.set("limit", limit.toString());
+
         const res = await axios.get(
-          `${serverURI}/api/campaigns?page=${page}&search=${search}`,
-          {
-            withCredentials: true,
-          }
+          `${serverURI}/api/campaigns?${params.toString()}`
         );
 
         const { data } = res.data;
         const { campaigns, rowCount } = data;
         this.setCampaign(campaigns, rowCount);
+      } catch (err) {
+        throw err;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async getCampaign(id: number) {
+      try {
+        this.isLoading = true;
+
+        const res = await axios.get(`${serverURI}/api/campaigns/id/${id}`);
+
+        const { data } = res.data;
+        this.currentCampaign = data;
       } catch (err) {
         throw err;
       } finally {

@@ -59,7 +59,11 @@ router.post(
   [adminMiddleware, uploadCampaignContent.single("content")],
   campaignController.uploadCampaignImage
 );
-router.put("/api/campaigns", adminMiddleware, campaignController.update);
+router.put(
+  "/api/campaigns",
+  [adminMiddleware, uploadCampaignThumbnail.single("thumbnail")],
+  campaignController.update
+);
 router.get("/api/campaigns/check", campaignController.isTitleExist);
 router.get("/api/campaigns/id/:id", campaignController.getCampaign);
 router.get("/api/campaigns", campaignController.getAllCampaign);

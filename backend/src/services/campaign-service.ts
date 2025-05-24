@@ -1,3 +1,4 @@
+import { Prisma } from "../../generated/prisma";
 import prisma from "../config/database";
 import ResponseError from "../error/response-error";
 
@@ -37,7 +38,7 @@ const update = async (id: number, campaign: Campaign) => {
 
     const isCampaignTitleExists = await isCampaignTitleExist(campaign.title);
 
-    if (isCampaignTitleExists) {
+    if (isCampaignTitleExists && isCampaignExists.title !== campaign.title) {
       throw new ResponseError(409, "campaign title is already exists");
     }
 
@@ -66,28 +67,51 @@ const getCampaign = async (id: number) => {
   }
 };
 
-const getAllCampaign = async (page: number, search: string, limit: number) => {
+const getAllCampaign = async (query: any) => {
   try {
-    const skip = (page - 1) * limit;
+    query.limit = Number(query.limit);
+    query.page = Number(query.page) ?? 1;
 
-    const where: {
-      title?: {
-        contains: string;
-        mode: "insensitive";
-      };
-    } = {
-      ...(search && {
-        title: {
-          contains: search,
-          mode: "insensitive",
+    const skip = (query.page - 1) * query.limit;
+
+    const where = {
+      AND: [
+        {
+          ...(query.search && {
+            title: {
+              contains: query.search,
+              mode: "insensitive",
+            },
+          }),
         },
-      }),
+        {
+          ...(query.categories_id && {
+            categories_id: Number(query.categories_id),
+          }),
+        },
+        {
+          ...(query.category_type &&
+            query.category_type == "ongoing" && {
+              end_at: {
+                gt: new Date(),
+              },
+            }),
+        },
+        {
+          ...(query.category_type &&
+            query.category_type == "conclude" && {
+              end_at: {
+                lt: new Date(),
+              },
+            }),
+        },
+      ],
     };
 
     const [campaigns, rowCount] = await Promise.all([
       prisma.campaign.findMany({
         skip,
-        take: limit,
+        take: query.limit,
         where,
       }),
       prisma.campaign.count({ where }),
