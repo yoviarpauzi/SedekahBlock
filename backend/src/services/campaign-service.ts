@@ -141,10 +141,13 @@ const isCampaignTitleExist = async (title: string): Promise<boolean> => {
   }
 };
 
+const destroy = async (id: number) => {};
+
 export default {
   create,
   update,
   getCampaign,
   getAllCampaign,
   isCampaignTitleExist,
+  destroy,
 };

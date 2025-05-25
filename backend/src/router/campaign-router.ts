@@ -26,6 +26,7 @@ router.put(
   [adminMiddleware, uploadCampaignThumbnail.single("thumbnail")],
   campaignController.update
 );
+router.delete("/api/campaigns/id/:id", campaignController.destroy);
 router.get("/api/campaigns/check", campaignController.isTitleExist);
 router.get("/api/campaigns/id/:id", campaignController.getCampaign);
 router.get("/api/campaigns", campaignController.getAllCampaign);

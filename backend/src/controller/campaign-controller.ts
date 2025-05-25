@@ -105,7 +105,7 @@ export const update = async (
         try {
           await fs.unlink(oldThumbnailPath);
         } catch (err) {
-          next(err);
+          throw err;
         }
       }
       body.thumbnail = newThumbnail;
@@ -131,7 +131,7 @@ export const update = async (
           try {
             await fs.unlink(filePath);
           } catch (err) {
-            next(err);
+            throw err;
           }
         })
       );
@@ -235,7 +235,57 @@ const uploadCampaignImage = async (
   }
 };
 
-const destroy = async (req: Request, res: Response, next: NextFunction) => {};
+const destroy = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const campaignId = Number(req.params.id);
+
+    if (isNaN(campaignId)) {
+      throw new ResponseError(400, "Invalid campaign ID");
+    }
+
+    const campaign = await campaignService.getCampaign(campaignId);
+
+    if (!campaign) {
+      throw new ResponseError(404, "Campaign not found");
+    }
+
+    if (campaign.thumbnail) {
+      const thumbnailPath = path.resolve(
+        __dirname,
+        `../storage/${campaign.thumbnail}`
+      );
+      try {
+        await fs.unlink(thumbnailPath);
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    const imageFilenames = extractImageFilenames(campaign.campaign_story!);
+
+    await Promise.all(
+      imageFilenames.map(async (filename) => {
+        const imagePath = path.resolve(
+          __dirname,
+          `../storage/campaigns/content/${filename}`
+        );
+        try {
+          await fs.unlink(imagePath);
+        } catch (err) {
+          throw err;
+        }
+      })
+    );
+
+    await campaignService.destroy(campaignId);
+
+    res.status(200).json({
+      message: "success delete campaign",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export default {
   create,
