@@ -13,7 +13,7 @@
         <RouterLink :to="`/admin/campaigns/edit/${campaign.id}`">
           <DropdownMenuItem>Update</DropdownMenuItem>
         </RouterLink>
-        <DropdownMenuItem>Delete</DropdownMenuItem>
+        <DropdownMenuItem @click="deleteCampaign">Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
@@ -29,8 +29,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-vue-next";
+import showToast from "@/utils/showToast";
+import useCampaignStore from "@/stores/campaignStore";
 
-defineProps<{
+const campaignStore = useCampaignStore();
+
+const props = defineProps<{
   campaign: {
     id: number;
     categories_id: number;
@@ -40,4 +44,13 @@ defineProps<{
     balance: number;
   };
 }>();
+
+const deleteCampaign = async () => {
+  try {
+    await campaignStore.deleteCampaign(props.campaign.id);
+    showToast("success", "success", "success delete campaign");
+  } catch (err: any) {
+    showToast("error", "error", err.message);
+  }
+};
 </script>

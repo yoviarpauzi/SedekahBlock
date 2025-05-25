@@ -72,6 +72,16 @@ const useCampaignStore = defineStore("campaign", {
         throw err;
       }
     },
+
+    async deleteCampaign(id: number) {
+      try {
+        await axios.delete(`${serverURI}/api/campaigns/id/${id}`);
+
+        this.data = this.data.filter((item: Campaign) => item.id !== id);
+      } catch (err) {
+        throw err;
+      }
+    },
   },
 });
 

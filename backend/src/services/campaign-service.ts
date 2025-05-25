@@ -141,7 +141,27 @@ const isCampaignTitleExist = async (title: string): Promise<boolean> => {
   }
 };
 
-const destroy = async (id: number) => {};
+const destroy = async (id: number) => {
+  try {
+    const isExist = await prisma.campaign.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!isExist) {
+      throw new ResponseError(404, "campaign ID not found");
+    }
+
+    await prisma.campaign.delete({
+      where: {
+        id,
+      },
+    });
+  } catch (err) {
+    throw err;
+  }
+};
 
 export default {
   create,

@@ -277,7 +277,7 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
       })
     );
 
-    await campaignService.destroy(campaignId);
+    const response = await campaignService.destroy(campaignId);
 
     res.status(200).json({
       message: "success delete campaign",
