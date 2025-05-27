@@ -68,6 +68,9 @@ const getAllCategory = async () => {
           },
         },
       },
+      orderBy: {
+        name: "asc",
+      },
     }),
     prisma.category.count({}),
   ]);

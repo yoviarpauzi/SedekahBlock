@@ -144,19 +144,17 @@ import useCategoryStore from "@/stores/categoryStore";
 import { onMounted, ref, watch } from "vue";
 import { valueUpdater } from "@/components/ui/table/utils";
 
+type Type = "all" | "ongoing" | "conclude";
+
+const props = defineProps<{
+  columns: ColumnDef<TData, TValue>[];
+}>();
 const route = useRoute();
 const router = useRouter();
 const campaignStore = useCampaignStore();
 const categoryStore = useCategoryStore();
 const page = route.query.page ?? "1";
 const categoryQuery = route.query.categories_id ?? "0";
-
-const props = defineProps<{
-  columns: ColumnDef<TData, TValue>[];
-}>();
-
-type Type = "all" | "ongoing" | "conclude";
-
 const selectCategory = ref<number>(Number(categoryQuery));
 const selectType = ref<Type>(
   (route.query.category_type?.toString() as Type) ?? "all"
@@ -255,7 +253,7 @@ const updateCategory = async (categories_id: number) => {
     router.push({
       query: updateQuery,
     });
-
+    1;
     return;
   }
 

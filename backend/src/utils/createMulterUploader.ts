@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import fs from "node:fs";
 import multer from "multer";
 import ResponseError from "../error/response-error";
 

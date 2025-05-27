@@ -18,7 +18,7 @@
         </p>
       </div>
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
           v-for="(item, idx) in stats"
           :key="idx"
@@ -40,21 +40,22 @@
 import { computed } from "vue";
 
 interface StatItem {
-  value: number;
+  value: number | string;
   label: string;
 }
 
 const props = defineProps<{
-  activeDonations?: number;
-  totalCollected?: number;
-  distributed?: number;
-  beneficiaries?: number;
+  stats: {
+    activeDonation: number;
+    donationDistributed: number;
+  };
 }>();
 
 const stats = computed<StatItem[]>(() => [
-  { value: props.activeDonations ?? 0, label: "Donasi Aktif" },
-  { value: props.totalCollected ?? 0, label: "Total Donasi Terkumpul" },
-  { value: props.distributed ?? 0, label: "Donasi Tersalurkan" },
-  { value: props.beneficiaries ?? 0, label: "Penerima Manfaat" },
+  { value: props?.stats?.activeDonation ?? 0, label: "Donasi Aktif" },
+  {
+    value: props?.stats?.donationDistributed ?? 0,
+    label: "Donasi Tersalurkan",
+  },
 ]);
 </script>

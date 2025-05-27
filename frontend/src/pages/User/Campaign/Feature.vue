@@ -1,8 +1,12 @@
 <template>
-  <div class="container pt-20 pb-10">
+  <div class="container pt-20">
     <div class="flex flex-col gap-4 md:flex-row">
       <div class="flex items-center gap-x-2 md:w-96">
-        <Input placeholder="Cari Kampanye..." v-model="campaignSearch" />
+        <Input
+          placeholder="Cari Kampanye..."
+          v-model="campaignSearch"
+          class="selection:bg-gray-400"
+        />
       </div>
 
       <div class="flex items-center gap-x-4">
@@ -56,25 +60,87 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 import useCategoryStore from "@/stores/categoryStore";
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
-defineEmits<{
-  (e: "search"): void;
-}>();
-
+const route = useRoute();
+const router = useRouter();
 const categoryStore = useCategoryStore();
 
 const campaignSearch = defineModel<string>("campaignSearch", {
   default: "",
 });
-const campaignCategory = defineModel<string>("campaignCategory", {
-  default: "all",
-});
-const campaignStatus = defineModel<string>("campaignStatus", {
-  default: "all",
-});
+
+const campaignCategory = defineModel<string>("campaignCategory");
+
+const campaignStatus = defineModel<string>("campaignStatus");
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
 });
+
+watch(
+  () => campaignSearch.value,
+  (value) => {
+    const query = { ...route.query };
+
+    if (value === "") {
+      delete query.search;
+      delete query.page;
+      router.replace({ query });
+      return;
+    }
+
+    router.replace({
+      query: {
+        ...route.query,
+        search: value,
+      },
+    });
+  }
+);
+
+watch(
+  () => campaignCategory.value,
+  (value) => {
+    const query = { ...route.query };
+
+    delete query.page;
+
+    if (value === "all") {
+      delete query.categories_id;
+      router.replace({ query });
+      return;
+    }
+
+    router.replace({
+      query: {
+        ...route.query,
+        categories_id: value,
+      },
+    });
+  }
+);
+
+watch(
+  () => campaignStatus.value,
+  (value) => {
+    const query = { ...route.query };
+
+    delete query.page;
+
+    if (value === "all") {
+      delete query.category_type;
+      router.replace({ query });
+      return;
+    }
+
+    router.replace({
+      query: {
+        ...route.query,
+        category_type: value,
+      },
+    });
+  }
+);
 </script>

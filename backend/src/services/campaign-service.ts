@@ -1,4 +1,3 @@
-import { Prisma } from "../../generated/prisma";
 import prisma from "../config/database";
 import ResponseError from "../error/response-error";
 

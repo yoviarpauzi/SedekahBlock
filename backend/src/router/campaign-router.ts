@@ -29,6 +29,6 @@ router.put(
 router.delete("/api/campaigns/id/:id", campaignController.destroy);
 router.get("/api/campaigns/check", campaignController.isTitleExist);
 router.get("/api/campaigns/id/:id", campaignController.getCampaign);
-router.get("/api/campaigns", campaignController.getAllCampaign);
+router.get("/api/campaigns", campaignController.getCampaigns);
 
 export default router;

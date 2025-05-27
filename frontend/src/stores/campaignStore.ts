@@ -7,10 +7,11 @@ interface Campaign {
   categories_id: number;
   title: string;
   target: number;
+  balance: number;
+  collected: number;
   end_at: Date;
   thumbnail: string | File;
   campaign_story: string;
-  balance?: number;
 }
 
 const useCampaignStore = defineStore("campaign", {
@@ -66,6 +67,16 @@ const useCampaignStore = defineStore("campaign", {
     async addCampaign(form: FormData) {
       try {
         await axios.post(`${serverURI}/api/campaigns`, form, {
+          withCredentials: true,
+        });
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    async updateCampaign(form: FormData) {
+      try {
+        await axios.put(`${serverURI}/api/campaigns`, form, {
           withCredentials: true,
         });
       } catch (err) {

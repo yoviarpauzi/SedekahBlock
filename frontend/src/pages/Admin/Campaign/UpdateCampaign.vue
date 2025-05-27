@@ -13,20 +13,17 @@
 import z from "zod";
 import { useForm } from "vee-validate";
 import useCategoryStore from "@/stores/categoryStore";
-import getTonPrice from "@/utils/checkTonPrice";
 import axios, { AxiosError } from "axios";
 import { toTypedSchema } from "@vee-validate/zod";
 import { serverURI } from "@/utils/environment";
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import showToast from "@/utils/showToast";
 import { useRoute, useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
 import useCampaignStore from "@/stores/campaignStore";
-import { DateFormatter } from "@internationalized/date";
 
 const router = useRouter();
 const route = useRoute();
-const tonPrice = ref<number>(0);
 const campaignId = Number(route.params.id);
 const categoryStore = useCategoryStore();
 const campaignStore = useCampaignStore();
@@ -101,11 +98,6 @@ const { isFieldDirty, handleSubmit, resetForm, setFieldValue, values } =
     },
   });
 
-onMounted(async () => {
-  await categoryStore.fetchCategories();
-  tonPrice.value = await getTonPrice();
-});
-
 const updateCampaign = handleSubmit(async (values) => {
   try {
     const form = new FormData();
@@ -121,9 +113,7 @@ const updateCampaign = handleSubmit(async (values) => {
       }
     }
 
-    await axios.put(`${serverURI}/api/campaigns`, form, {
-      withCredentials: true,
-    });
+    campaignStore.updateCampaign(form);
 
     showToast("success", "success", "success update campaign");
     resetForm();
@@ -136,6 +126,7 @@ const updateCampaign = handleSubmit(async (values) => {
 });
 
 onMounted(async () => {
+  await categoryStore.fetchCategories();
   await campaignStore.getCampaign(campaignId);
 
   resetForm({

@@ -3,49 +3,28 @@ import campaignService from "../services/campaign-service";
 import ResponseError from "../error/response-error";
 import path from "path";
 import fs from "fs/promises";
+import moveImageFromTemp from "../utils/moveImageFromTemp";
+import extractMatches from "../utils/extractImageFileName";
 
-const moveImageFromTemp = async (req: Request) => {
-  const urlRegex = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
-  const tempDir = path.resolve(__dirname, "./../temp/campaigns/content");
-  const storageDir = path.resolve(__dirname, "./../storage/campaigns/content");
+const regex = /\/campaigns\/content\/([^"' ]+)/g;
+const urlRegex: RegExp = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
+const tempDir = path.resolve(__dirname, "./../temp/campaigns/content");
+const storageDir = path.resolve(__dirname, "./../storage/campaigns/content");
 
-  const filenamesToMove = new Set<string>();
-  let match;
-  while ((match = urlRegex.exec(req.body.campaign_story)) !== null) {
-    filenamesToMove.add(match[1]);
-  }
-
-  await fs.mkdir(storageDir, { recursive: true });
-
-  for (const filename of filenamesToMove) {
-    const tempPath = path.join(tempDir, filename);
-    const storagePath = path.join(storageDir, filename);
-
-    try {
-      await fs.rename(tempPath, storagePath);
-
-      const tempUrl = `${req.protocol}://${req.get(
-        "host"
-      )}/campaigns/content/${filename}`;
-      req.body.campaign_story = req.body.campaign_story.replace(
-        new RegExp(tempUrl, "g"),
-        tempUrl
-      );
-    } catch (err) {
-      throw err;
-    }
-  }
-};
-
-const extractImageFilenames = (story?: string): string[] => {
-  return Array.from(story?.match(/\/campaigns\/content\/([^"' ]+)/g) || [])
-    .map((url) => url.split("/").pop() || "")
-    .filter(Boolean);
-};
+const getBaseUrl = (req: Request): string =>
+  `${req.protocol}://${req.get("host")}`;
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    await moveImageFromTemp(req);
+    const content = req.body.campaign_story;
+
+    await moveImageFromTemp({
+      content,
+      urlRegex,
+      tempDir,
+      storageDir,
+      baseUrl: getBaseUrl(req),
+    });
 
     const thumbnail = `campaigns/thumbnail/${req.file?.filename}`;
 
@@ -75,6 +54,7 @@ export const update = async (
 ) => {
   try {
     const id = Number(req.body.id);
+    const content = req.body.campaign_story;
 
     if (isNaN(id)) {
       throw new ResponseError(400, "Invalid campaign id");
@@ -86,7 +66,13 @@ export const update = async (
       throw new ResponseError(404, "Campaign ID not found");
     }
 
-    await moveImageFromTemp(req);
+    await moveImageFromTemp({
+      content,
+      urlRegex,
+      tempDir,
+      storageDir,
+      baseUrl: getBaseUrl(req),
+    });
 
     const body: any = {
       ...req.body,
@@ -117,8 +103,8 @@ export const update = async (
     const oldStory = oldCampaign.campaign_story!;
 
     if (newStory && newStory !== oldStory) {
-      const oldImages = extractImageFilenames(oldStory);
-      const newImages = extractImageFilenames(newStory);
+      const oldImages = extractMatches({ content: oldStory, regex });
+      const newImages = extractMatches({ content: newStory, regex });
 
       const removedImages = oldImages.filter((img) => !newImages.includes(img));
 
@@ -172,7 +158,7 @@ const getCampaign = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getAllCampaign = async (
+const getCampaigns = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -261,7 +247,10 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
-    const imageFilenames = extractImageFilenames(campaign.campaign_story!);
+    const imageFilenames = extractMatches({
+      content: campaign.campaign_story!,
+      regex,
+    });
 
     await Promise.all(
       imageFilenames.map(async (filename) => {
@@ -277,7 +266,7 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
       })
     );
 
-    const response = await campaignService.destroy(campaignId);
+    await campaignService.destroy(campaignId);
 
     res.status(200).json({
       message: "success delete campaign",
@@ -291,7 +280,7 @@ export default {
   create,
   update,
   getCampaign,
-  getAllCampaign,
+  getCampaigns,
   isTitleExist,
   uploadCampaignImage,
   destroy,

@@ -261,7 +261,7 @@ const modules = [
             .then((res) => {
               resolve(res.data.url);
             })
-            .catch((err) => {
+            .catch(() => {
               reject("Upload failed");
             });
         });

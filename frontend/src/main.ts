@@ -11,8 +11,10 @@ import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { Quill } from "@vueup/vue-quill";
 import { serverURI } from "./utils/environment";
-import { useRoute } from "vue-router";
 import axios from "axios";
+import { register } from "swiper/element/bundle";
+
+register();
 
 Quill.debug("error");
 

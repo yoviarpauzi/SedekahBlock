@@ -13,18 +13,16 @@
 import z from "zod";
 import { useForm } from "vee-validate";
 import useCategoryStore from "@/stores/categoryStore";
-import getTonPrice from "@/utils/checkTonPrice";
 import axios, { AxiosError } from "axios";
 import { toTypedSchema } from "@vee-validate/zod";
 import { serverURI } from "@/utils/environment";
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import showToast from "@/utils/showToast";
 import { useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
 import useCampaignStore from "@/stores/campaignStore";
 
 const router = useRouter();
-const tonPrice = ref<number>(0);
 const campaignStore = useCampaignStore();
 
 const formSchema = toTypedSchema(
@@ -87,7 +85,6 @@ const categoryStore = useCategoryStore();
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
-  tonPrice.value = await getTonPrice();
 });
 
 const createCampaign = handleSubmit(async (values) => {

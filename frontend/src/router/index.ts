@@ -16,6 +16,7 @@ import AdminCampaign from "@/pages/Admin/Campaign/index.vue";
 import AdminCreateCampaign from "@/pages/Admin/Campaign/CreateCampaign.vue";
 import AdminUpdateCampaign from "@/pages/Admin/Campaign/UpdateCampaign.vue";
 import AdminUser from "@/pages/Admin/Users/index.vue";
+import DetailCampaign from "@/pages/User/Campaign/DetailCampaign.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -29,6 +30,10 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "campaigns",
         component: Campaign,
+      },
+      {
+        path: "campaigns/details/:id",
+        component: DetailCampaign,
       },
     ],
   },
@@ -89,6 +94,11 @@ export const routes: RouteRecordRaw[] = [
 const router: Router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior: () => {
+    return {
+      top: 0,
+    };
+  },
 });
 
 export default router;
