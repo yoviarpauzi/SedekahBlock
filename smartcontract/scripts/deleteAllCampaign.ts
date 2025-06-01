@@ -13,8 +13,7 @@ export async function run(provider: NetworkProvider) {
             value: toNano('0.05'),
         },
         {
-            $$type: 'CreateCampaign',
-            id: 1n,
+            $$type: 'DeleteAllCampaign',
         },
     );
 }

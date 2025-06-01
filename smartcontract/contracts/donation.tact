@@ -23,6 +23,8 @@ message DeleteCampaign {
     id: Int as uint32;
 }
 
+message DeleteAllCampaign{}
+
 contract Donation with Ownable {
     owner: Address;
     campaigns: map<Int as uint23, Campaign>;
@@ -50,6 +52,13 @@ contract Donation with Ownable {
 
     get fun totalCampaign(): Int{
         return self.numOfCampaign;
+    }
+
+    receive(msg: DeleteAllCampaign) {
+        self.requireOwner();
+
+        self.campaigns = emptyMap();
+        self.numOfCampaign = 0;
     }
 
     receive(msg: CreateCampaign) {
