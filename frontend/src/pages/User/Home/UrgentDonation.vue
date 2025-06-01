@@ -52,6 +52,4 @@ interface Campaign {
 const props = defineProps<{
   campaigns: Campaign[];
 }>();
-
-console.log(props.campaigns);
 </script>

@@ -7,7 +7,7 @@ const upsert = z.object({
   target: z.number(),
   end_at: z.date(),
   thumbnail: z.string().max(100),
-  campaign_story: z.string(),
+  story: z.string(),
   balance: z.number(),
 });
 

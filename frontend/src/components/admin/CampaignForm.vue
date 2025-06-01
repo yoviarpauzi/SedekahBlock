@@ -7,7 +7,9 @@
     <!-- thumbnail -->
     <FormField name="thumbnail">
       <FormItem>
-        <FormLabel>Thumbnail<span class="text-red-400">*</span></FormLabel>
+        <FormLabel for="content"
+          >Thumbnail<span class="text-red-400">*</span></FormLabel
+        >
         <FormControl>
           <Input type="file" @change="onFileChange" name="content" />
         </FormControl>
@@ -22,7 +24,9 @@
       :validate-on-blur="!isFieldDirty('title')"
     >
       <FormItem>
-        <FormLabel>Title<span class="text-red-400">*</span></FormLabel>
+        <FormLabel for="title"
+          >Title<span class="text-red-400">*</span></FormLabel
+        >
         <FormControl>
           <Input
             type="text"
@@ -141,8 +145,8 @@
       </FormItem>
     </FormField>
 
-    <!-- campaign_story -->
-    <FormField name="campaign_story">
+    <!-- story -->
+    <FormField name="story">
       <FormItem>
         <FormLabel
           >Campaign Story <span class="text-red-400">*</span></FormLabel
@@ -151,8 +155,8 @@
           <QuillEditor
             theme="snow"
             contentType="html"
-            :content="values.campaign_story || ''"
-            @update:content="(val: string) => onInputChange('campaign_story', val)"
+            :content="values.story || ''"
+            @update:content="(val: string) => onInputChange('story', val)"
             style="height: 25rem"
             class="border"
             :toolbar="toolbarOptions"
@@ -210,10 +214,11 @@ import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import BlotFormatter from "quill-blot-formatter";
 import ImageUploader from "quill-image-uploader";
 import "quill-image-uploader/dist/quill.imageUploader.min.css";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import axios from "axios";
 import getTonPrice from "@/utils/checkTonPrice";
 import { serverURI } from "@/utils/environment";
+import tonWeb from "@/utils/ton-web";
 
 const props = defineProps<{
   values: any;

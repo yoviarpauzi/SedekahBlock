@@ -12,15 +12,17 @@
 <script setup lang="ts">
 import z from "zod";
 import { useForm } from "vee-validate";
-import useCategoryStore from "@/stores/categoryStore";
-import axios, { AxiosError } from "axios";
+import useCategoryStore from "@/stores/category-store";
+import axios from "axios";
 import { toTypedSchema } from "@vee-validate/zod";
-import { serverURI } from "@/utils/environment";
+import { contractAddress, serverURI } from "@/utils/environment";
 import { onMounted } from "vue";
 import showToast from "@/utils/showToast";
 import { useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
+import { useSendMessage, useTonConnect } from "@d0rich/vueton";
+import { Address, toNano, beginCell } from "@ton/core";
 
 const router = useRouter();
 const campaignStore = useCampaignStore();
@@ -47,7 +49,10 @@ const formSchema = toTypedSchema(
       .refine(
         async (title) => {
           const res = await axios.get(
-            `${serverURI}/api/campaigns/check?title=${title}`
+            `${serverURI}/api/campaigns/check?title=${title}`,
+            {
+              withCredentials: true,
+            }
           );
           const { data } = res.data;
           return !data;
@@ -69,7 +74,7 @@ const formSchema = toTypedSchema(
         }
       ),
     end_at: z.string(),
-    campaign_story: z.string(),
+    story: z.string(),
   })
 );
 
@@ -102,14 +107,42 @@ const createCampaign = handleSubmit(async (values) => {
       }
     }
 
-    await campaignStore.addCampaign(form);
-    showToast("success", "success", "success create campaign");
+    const { sendTransaction } = useTonConnect();
+    const campaign = await campaignStore.addCampaign(form);
+
+    const { sendMessage, success, fail } = useSendMessage({
+      sendMessageFn: async () => {
+        const messageCell = beginCell()
+          .storeUint(0x9971f0f9, 32)
+          .storeUint(campaign.id, 32)
+          .endCell();
+
+        const contract = Address.parse(contractAddress!);
+
+        await sendTransaction({
+          to: contract,
+          value: toNano("0.05"),
+          bounce: true,
+          body: messageCell,
+        });
+      },
+    });
+
+    await sendMessage();
+
+    if (success.value) {
+      showToast("success", "success", "success create campaign");
+    }
+
+    if (fail.value) {
+      await campaignStore.deleteCampaign(campaign.id);
+      showToast("error", "error", "failed create campaign");
+    }
+
     resetForm();
     router.push("/admin/campaigns");
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      showToast("error", "error", err.message);
-    }
+  } catch (err: any) {
+    showToast("error", "error", err.message);
   }
 });
 </script>

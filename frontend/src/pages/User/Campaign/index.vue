@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import Feature from "@/pages/User/Campaign/Feature.vue";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import CampaignCard from "@/components/CampaignCard.vue";
@@ -75,14 +75,10 @@ watch(
   () => route.query,
   async () => {
     await campaignStore.getCampaigns(12);
-
-    console.log(campaignStore.data);
   }
 );
 
 onMounted(async () => {
   await campaignStore.getCampaigns(12);
-
-  console.log(campaignStore.data);
 });
 </script>

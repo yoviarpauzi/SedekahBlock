@@ -87,7 +87,7 @@ import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { useRoute, useRouter } from "vue-router";
 import Input from "@/components/ui/input/Input.vue";
-import { useUserStore } from "@/stores/userStore";
+import { useUserStore } from "@/stores/user-store";
 import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 
 const props = defineProps<{
@@ -116,7 +116,7 @@ const table = useVueTable({
   initialState: {
     pagination: {
       pageIndex: Number(pageQuery) - 1,
-      pageSize: 5,
+      pageSize: 10,
     },
   },
 });

@@ -1,19 +1,19 @@
 <template>
   <RouterLink
     :to="`/campaigns/details/${campaign.id}`"
-    class="flex flex-col bg-white rounded-md shadow h-72 cursor-pointer transform transition duration-300"
+    class="flex flex-col bg-white rounded-md shadow-sm border w-full max-w-sm h-72 cursor-pointer transform transition duration-300"
   >
-    <div class="w-full h-56 rounded-t-md overflow-hidden">
+    <div class="w-full h-32 rounded-t-md overflow-hidden">
       <img
         :src="`${serverURI}/${campaign.thumbnail}`"
         :alt="`campaign-${campaign.id}`"
-        class="w-full h-full rounded-t-md object-cover"
+        class="w-full h-full object-cover"
       />
     </div>
 
-    <div class="p-4">
+    <div class="p-4 flex flex-col justify-between flex-grow">
       <p class="text-xs">Pribumi Untuk Negeri</p>
-      <p class="font-medium mt-2">{{ campaign.title }}</p>
+      <p class="font-medium mt-2 line-clamp-2">{{ campaign.title }}</p>
       <div class="mt-3 flex flex-col gap-y-2">
         <p class="text-sm font-medium">
           Terkumpul

@@ -102,7 +102,7 @@ import {
 } from "@tanstack/vue-table";
 import Input from "@/components/ui/input/Input.vue";
 import CreateCategory from "./CreateCategory.vue";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import { ref } from "vue";
 import { valueUpdater } from "@/components/ui/table/utils";
 import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
@@ -133,7 +133,7 @@ const table = useVueTable({
   initialState: {
     pagination: {
       pageIndex: 0,
-      pageSize: 5,
+      pageSize: 10,
     },
   },
   onColumnFiltersChange: (updaterOrValue) =>

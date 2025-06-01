@@ -6,7 +6,7 @@ import tonConfig from "@/config/ton";
 import configureAxiosRetry from "@/config/axios";
 import { createVueton } from "@d0rich/vueton";
 import { createPinia } from "pinia";
-import useUserStore from "./stores/authStore";
+import useUserStore from "./stores/auth-store";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { Quill } from "@vueup/vue-quill";

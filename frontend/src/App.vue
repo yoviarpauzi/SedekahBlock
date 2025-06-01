@@ -10,7 +10,7 @@ import { useTonConnect } from "@d0rich/vueton";
 import { watch } from "vue";
 import axios, { AxiosError } from "axios";
 import { toast } from "vue-sonner";
-import useAuthStore from "./stores/authStore";
+import useAuthStore from "./stores/auth-store";
 import { serverURI } from "./utils/environment";
 
 const { tonNetwork, tonWallet, tonConnect } = useTonConnect();

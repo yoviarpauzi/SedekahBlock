@@ -29,7 +29,8 @@
               <li
                 :class="{
                   'hover:border-b-2 hover:border-b-green-700': true,
-                  'border-b-2 border-b-green-700': route.path === '/campaigns',
+                  'border-b-2 border-b-green-700':
+                    route.path.includes('/campaigns'),
                 }"
               >
                 <RouterLink to="/campaigns">Kampanye</RouterLink>
@@ -50,7 +51,7 @@
             CONNECT
           </Button>
 
-          <div v-else class="mr-4">
+          <div v-else class="mr-4 lg:mr-0">
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
                 <Avatar class="w-8 h-8 cursor-pointer">
@@ -168,7 +169,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import useUserStore from "@/stores/authStore";
+import useUserStore from "@/stores/auth-store";
 import showToast from "@/utils/showToast";
 
 const route = useRoute();

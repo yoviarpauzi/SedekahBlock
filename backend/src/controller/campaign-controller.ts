@@ -16,7 +16,7 @@ const getBaseUrl = (req: Request): string =>
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const content = req.body.campaign_story;
+    const content = req.body.story;
 
     await moveImageFromTemp({
       content,
@@ -53,8 +53,8 @@ export const update = async (
   next: NextFunction
 ) => {
   try {
-    const id = Number(req.body.id);
-    const content = req.body.campaign_story;
+    const id = Number(req.params.id);
+    const content = req.body.story;
 
     if (isNaN(id)) {
       throw new ResponseError(400, "Invalid campaign id");
@@ -78,8 +78,13 @@ export const update = async (
       ...req.body,
       categories_id: Number(req.body.categories_id),
       target: Number(req.body.target),
-      end_at: new Date(req.body.end_at),
     };
+
+    if (body.end_at) {
+      body.end_at = new Date(req.body.end_at);
+    } else {
+      delete body.end_at;
+    }
 
     if (req.file?.filename) {
       const newThumbnail = `campaigns/thumbnail/${req.file.filename}`;
@@ -99,8 +104,8 @@ export const update = async (
       body.thumbnail = oldCampaign.thumbnail;
     }
 
-    const newStory = req.body.campaign_story;
-    const oldStory = oldCampaign.campaign_story!;
+    const newStory = req.body.story;
+    const oldStory = oldCampaign.story!;
 
     if (newStory && newStory !== oldStory) {
       const oldImages = extractMatches({ content: oldStory, regex });
@@ -122,14 +127,14 @@ export const update = async (
         })
       );
 
-      body.campaign_story = newStory;
+      body.story = newStory;
     } else {
-      body.campaign_story = oldStory;
+      body.story = oldStory;
     }
 
     delete body.id;
 
-    const campaign = await campaignService.update(id, body);
+    const campaign: any = await campaignService.update(id, body);
 
     res.status(200).json({
       message: "success update data",
@@ -166,7 +171,7 @@ const getCampaigns = async (
   try {
     const query = { ...req.query, page: req.query.page ?? "1" };
 
-    const [campaigns, rowCount] = await campaignService.getAllCampaign(query);
+    const { campaigns, rowCount } = await campaignService.getAllCampaign(query);
 
     res.status(200).json({
       message: "success retrieve campaigns",
@@ -248,7 +253,7 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const imageFilenames = extractMatches({
-      content: campaign.campaign_story!,
+      content: campaign.story!,
       regex,
     });
 

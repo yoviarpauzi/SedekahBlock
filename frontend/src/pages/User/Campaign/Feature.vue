@@ -59,7 +59,7 @@ import {
   SelectValue,
   SelectLabel,
 } from "@/components/ui/select";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 

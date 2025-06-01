@@ -20,13 +20,14 @@ enum Role {
 }
 
 model User {
-  id                 Int               @id @default(autoincrement())
-  role               Role              @default(USER)
-  name               String            @default("Orang Baik") @db.VarChar(100)
-  profile_picture    String            @default("https://ui-avatars.com/api/?name=Orang+Baik") @db.VarChar(100)
-  wallet_address     String            @unique @db.VarChar(100)
-  created_at         DateTime          @default(now())
-  updated_at         DateTime?         @updatedAt
+  id              Int       @id @default(autoincrement())
+  role            Role      @default(USER)
+  name            String    @default("Orang Baik") @db.VarChar(100)
+  profile_picture String    @default("https://ui-avatars.com/api/?name=Orang+Baik") @db.VarChar(100)
+  wallet_address  String    @unique @db.VarChar(100)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime? @updatedAt
+
   donation_histories DonationHistory[]
   Donor              Donor[]
 
@@ -34,43 +35,48 @@ model User {
 }
 
 model Category {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique @db.VarChar(100)
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  campaigns  Campaign[]
+  id         Int      @id @default(autoincrement())
+  name       String   @unique @db.VarChar(100)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  campaigns Campaign[]
 
   @@map("categories")
 }
 
 model Campaign {
-  id                        Int                         @id @default(autoincrement())
-  categories_id             Int
-  title                     String                      @unique @db.VarChar(100)
-  target                    Decimal                     @db.Decimal(10, 2)
-  end_at                    DateTime?                   @db.Date
-  thumbnail                 String                      @db.VarChar(100)
-  campaign_story            String?                     @db.Text
-  balance                   Decimal                     @default(0) @db.Decimal(10, 2)
-  collected                 Decimal                     @default(0) @db.Decimal(10, 2)
-  is_active                 Boolean                     @default(true)
-  is_withdraw               Boolean                     @default(false)
-  created_at                DateTime                    @default(now())
-  updated_at                DateTime?                   @updatedAt
-  category                  Category                    @relation(fields: [categories_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  donation_histories        DonationHistory[]
-  Donor                     Donor[]
-  LatestNews                LatestNews[]
-  FundDisbursementHistories FundDisbursementHistories[]
+  id            Int       @id @default(autoincrement())
+  categories_id Int
+  title         String    @unique @db.VarChar(100)
+  target        Decimal   @db.Decimal(10, 2)
+  end_at        DateTime? @db.Date
+  thumbnail     String    @db.VarChar(100)
+  story         String?   @db.Text
+  balance       Decimal   @default(0) @db.Decimal(10, 2)
+  collected     Decimal   @default(0) @db.Decimal(10, 2)
+  is_active     Boolean   @default(true)
+  is_withdraw   Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt
+
+  category Category @relation(fields: [categories_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  donation_histories          DonationHistory[]
+  donors                      Donor[]
+  news                        News[]
+  fund_disbursement_histories FundDisbursementHistories[]
 
   @@map("campaigns")
 }
 
 model DonationHistory {
-  id           Int     @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   users_id     Int
   campaigns_id Int
-  amount       Decimal @db.Decimal(10, 2)
+  amount       Decimal   @db.Decimal(10, 2)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @updatedAt
 
   users     User      @relation(fields: [users_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   campaigns Campaign? @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -81,6 +87,8 @@ model DonationHistory {
 model Donor {
   users_id     Int
   campaigns_id Int
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @updatedAt
 
   user     User     @relation(fields: [users_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
@@ -89,23 +97,27 @@ model Donor {
   @@map("donors")
 }
 
-model LatestNews {
-  id           Int    @id @default(autoincrement())
+model News {
+  id           Int       @id @default(autoincrement())
   campaigns_id Int
-  title        String @db.VarChar(100)
-  body         String @db.Text()
+  title        String    @db.VarChar(100)
+  body         String    @db.Text()
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @updatedAt
 
   campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-  @@map("latest_news")
+  @@map("news")
 }
 
 model FundDisbursementHistories {
-  id           Int     @id @default(autoincrement())
+  id           Int       @id @default(autoincrement())
   campaigns_id Int
-  amount       Decimal @db.Decimal(10, 2)
-  title        String  @db.VarChar(100)
-  body         String  @db.Text()
+  amount       Decimal   @db.Decimal(10, 2)
+  title        String    @db.VarChar(100)
+  body         String    @db.Text()
+  created_at   DateTime  @default(now())
+  updated_at   DateTime? @updatedAt
 
   campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 

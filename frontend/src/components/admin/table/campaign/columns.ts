@@ -13,6 +13,7 @@ export interface Campaign {
   target: number;
   end_at: Date;
   balance: number;
+  collected: number;
 }
 
 const result = await axios.get(`${serverURI}/api/categories`);
@@ -58,6 +59,20 @@ export const columns: ColumnDef<Campaign>[] = [
             column.toggleSorting(column.getIsSorted() === "asc", true),
         },
         () => ["Balance", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
+      );
+    },
+  },
+  {
+    accessorKey: "collected",
+    header: ({ column }) => {
+      return h(
+        Button,
+        {
+          variant: "ghost",
+          onClick: () =>
+            column.toggleSorting(column.getIsSorted() === "asc", true),
+        },
+        () => ["Collected", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
       );
     },
   },

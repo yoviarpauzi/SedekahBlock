@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import { AxiosError } from "axios";
 import showToast from "@/utils/showToast";
 

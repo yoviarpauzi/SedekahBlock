@@ -18,7 +18,7 @@ import Button from "@/components/ui/button/Button.vue";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { useForm } from "vee-validate";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import axios from "axios";
 import { serverURI } from "@/utils/environment";
 import showToast from "@/utils/showToast";

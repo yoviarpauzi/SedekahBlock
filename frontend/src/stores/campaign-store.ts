@@ -11,7 +11,14 @@ interface Campaign {
   collected: number;
   end_at: Date;
   thumbnail: string | File;
-  campaign_story: string;
+  story: string;
+  fund_disbursement_histories?: [{ updated_at: Date }];
+  news?: [{ updated_at: Date }];
+  _count?: {
+    news?: number;
+    fund_disbursement_histories?: number;
+    donation_histories?: number;
+  };
 }
 
 const useCampaignStore = defineStore("campaign", {
@@ -66,17 +73,20 @@ const useCampaignStore = defineStore("campaign", {
 
     async addCampaign(form: FormData) {
       try {
-        await axios.post(`${serverURI}/api/campaigns`, form, {
+        const res = await axios.post(`${serverURI}/api/campaigns`, form, {
           withCredentials: true,
         });
+
+        const { data } = res.data;
+        return data;
       } catch (err) {
         throw err;
       }
     },
 
-    async updateCampaign(form: FormData) {
+    async updateCampaign(id: number, form: FormData) {
       try {
-        await axios.put(`${serverURI}/api/campaigns`, form, {
+        await axios.put(`${serverURI}/api/campaigns/id/${id}`, form, {
           withCredentials: true,
         });
       } catch (err) {
@@ -86,7 +96,9 @@ const useCampaignStore = defineStore("campaign", {
 
     async deleteCampaign(id: number) {
       try {
-        await axios.delete(`${serverURI}/api/campaigns/id/${id}`);
+        await axios.delete(`${serverURI}/api/campaigns/id/${id}`, {
+          withCredentials: true,
+        });
 
         this.data = this.data.filter((item: Campaign) => item.id !== id);
       } catch (err) {

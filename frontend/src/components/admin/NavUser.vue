@@ -82,7 +82,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import useAuthStore from "@/stores/authStore";
+import useAuthStore from "@/stores/auth-store";
 import { useTonConnect } from "@d0rich/vueton";
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-vue-next";
 import { useRouter } from "vue-router";

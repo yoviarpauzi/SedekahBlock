@@ -15,7 +15,7 @@ import showToast from "@/utils/showToast";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { useForm } from "vee-validate";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import axios, { AxiosError } from "axios";
 import { serverURI } from "@/utils/environment";
 import CategoryForm from "../../CategoryForm.vue";

@@ -8,7 +8,7 @@
 import { onMounted } from "vue";
 import { columns } from "@/components/admin/table/categories/columns";
 import DataTable from "@/components/admin/table/categories/DataTable.vue";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 
 const categoryStore = useCategoryStore();
 

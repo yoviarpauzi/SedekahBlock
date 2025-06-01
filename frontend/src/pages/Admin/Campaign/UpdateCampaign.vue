@@ -12,15 +12,15 @@
 <script setup lang="ts">
 import z from "zod";
 import { useForm } from "vee-validate";
-import useCategoryStore from "@/stores/categoryStore";
-import axios, { AxiosError } from "axios";
+import useCategoryStore from "@/stores/category-store";
+import axios from "axios";
 import { toTypedSchema } from "@vee-validate/zod";
 import { serverURI } from "@/utils/environment";
 import { onMounted } from "vue";
 import showToast from "@/utils/showToast";
 import { useRoute, useRouter } from "vue-router";
 import CampaignForm from "@/components/admin/CampaignForm.vue";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
 
 const router = useRouter();
 const route = useRoute();
@@ -30,7 +30,6 @@ const campaignStore = useCampaignStore();
 
 const formSchema = toTypedSchema(
   z.object({
-    id: z.number().positive(),
     thumbnail: z
       .instanceof(File)
       .refine((file) => file?.size <= 5000000, `Max image size is 5MB.`)
@@ -52,7 +51,10 @@ const formSchema = toTypedSchema(
       .refine(
         async (title) => {
           const res = await axios.get(
-            `${serverURI}/api/campaigns/check?title=${title}`
+            `${serverURI}/api/campaigns/check?title=${title}`,
+            {
+              withCredentials: true,
+            }
           );
           const { data } = res.data;
 
@@ -81,8 +83,8 @@ const formSchema = toTypedSchema(
           message: "Target maksimal 2 angka di belakang koma",
         }
       ),
-    end_at: z.string(),
-    campaign_story: z.string(),
+    end_at: z.string().optional(),
+    story: z.string(),
   })
 );
 
@@ -90,11 +92,10 @@ const { isFieldDirty, handleSubmit, resetForm, setFieldValue, values } =
   useForm({
     validationSchema: formSchema,
     initialValues: {
-      id: campaignStore.currentCampaign.id,
       title: campaignStore.currentCampaign.title,
       categories_id: Number(campaignStore.currentCampaign.categories_id),
       target: Number(campaignStore.currentCampaign.target),
-      campaign_story: campaignStore.currentCampaign.campaign_story,
+      story: campaignStore.currentCampaign.story,
     },
   });
 
@@ -113,15 +114,13 @@ const updateCampaign = handleSubmit(async (values) => {
       }
     }
 
-    campaignStore.updateCampaign(form);
+    campaignStore.updateCampaign(campaignId, form);
 
     showToast("success", "success", "success update campaign");
     resetForm();
     router.push("/admin/campaigns");
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      showToast("error", "error", err.message);
-    }
+  } catch (err: any) {
+    showToast("error", "error", err.message);
   }
 });
 
@@ -131,11 +130,10 @@ onMounted(async () => {
 
   resetForm({
     values: {
-      id: campaignStore.currentCampaign.id,
       title: campaignStore.currentCampaign.title,
       categories_id: Number(campaignStore.currentCampaign.categories_id),
       target: Number(campaignStore.currentCampaign.target),
-      campaign_story: campaignStore.currentCampaign.campaign_story,
+      story: campaignStore.currentCampaign.story,
     },
   });
 });

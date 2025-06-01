@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-vue-next";
 import showToast from "@/utils/showToast";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
 
 const campaignStore = useCampaignStore();
 

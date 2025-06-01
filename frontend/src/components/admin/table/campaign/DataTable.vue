@@ -138,9 +138,9 @@ import Input from "@/components/ui/input/Input.vue";
 import Button from "@/components/ui/button/Button.vue";
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { useRoute, useRouter } from "vue-router";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
 import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
-import useCategoryStore from "@/stores/categoryStore";
+import useCategoryStore from "@/stores/category-store";
 import { onMounted, ref, watch } from "vue";
 import { valueUpdater } from "@/components/ui/table/utils";
 
@@ -178,7 +178,7 @@ const table = useVueTable({
   initialState: {
     pagination: {
       pageIndex: Number(page) - 1,
-      pageSize: 5,
+      pageSize: 10,
     },
   },
   state: {

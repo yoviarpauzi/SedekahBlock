@@ -8,7 +8,7 @@
 import { onMounted } from "vue";
 import { columns } from "@/components/admin/table/campaign/columns";
 import DataTable from "@/components/admin/table/campaign/DataTable.vue";
-import useCampaignStore from "@/stores/campaignStore";
+import useCampaignStore from "@/stores/campaign-store";
 import { watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -22,7 +22,7 @@ onMounted(async () => {
 watch(
   () => route.fullPath,
   async () => {
-    await campaignStore.getCampaigns();
+    await campaignStore.getCampaigns(10);
   }
 );
 </script>
