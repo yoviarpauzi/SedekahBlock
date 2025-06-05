@@ -84,6 +84,7 @@ describe('Donation', () => {
             $$type: 'ReceiveDonation',
             id: 1n,
             amount: 1n,
+
         };
 
         await donation.send(

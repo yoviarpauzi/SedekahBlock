@@ -19,6 +19,12 @@ message WithdrawCampaign{
     amount: Int as uint256;
 }
 
+message TransferBalance{
+    id: Int as uint32;
+    toId: Int as uint32;
+    amount: Int as uint256;
+}
+
 message DeleteCampaign {
     id: Int as uint32;
 }
@@ -79,11 +85,13 @@ contract Donation with Ownable {
     receive(msg: WithdrawCampaign){
         self.requireOwner();
         throwUnless(134, self.campaigns.exists(msg.id));
+        throwUnless(134, msg.amount > 0);
 
-        let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
-
+        
         throwUnless(37, balance > msg.amount);
+        
+        let campaign = self.campaigns.get(msg.id);
 
         self.campaigns.set(msg.id, Campaign {
             id: msg.id,
@@ -95,6 +103,29 @@ contract Donation with Ownable {
             value: msg.amount, 
             mode: SendPayFwdFeesSeparately,
             bounce: true
+        });
+    }
+
+    receive(msg: TransferBalance) {
+        self.requireOwner();
+        throwUnless(134, self.campaigns.exists(msg.id));
+        throwUnless(134, self.campaigns.exists(msg.toId));
+
+        let balance = myBalance();
+        let campaign = self.campaigns.get(msg.id);
+        let toCampaign = self.campaigns.get(msg.toId);
+
+        throwUnless(37, balance > msg.amount);
+        throwUnless(32, campaign!!.balance > msg.amount);
+
+        self.campaigns.set(msg.id, Campaign {
+            id: msg.id,
+            balance: campaign!!.balance - msg.amount
+        });
+
+        self.campaigns.set(msg.toId, Campaign {
+            id: msg.toId,
+            balance: campaign!!.balance + msg.amount
         });
     }
 
