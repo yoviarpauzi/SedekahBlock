@@ -23,12 +23,6 @@ message DeleteCampaign {
     id: Int as uint32;
 }
 
-message OwnerDeposit{}
-
-message OwnerWithdraw{
-    amount: Int as uint256;
-}
-
 contract Donation with Ownable {
     owner: Address;
     campaigns: map<Int as uint23, Campaign>;
@@ -110,21 +104,5 @@ contract Donation with Ownable {
 
         let _ = self.campaigns.del(msg.id);
         self.numOfCampaign -= 1;
-    }
-
-    receive(msg: OwnerDeposit) {
-        self.requireOwner();
-    }
-
-    receive(msg: OwnerWithdraw) {
-        self.requireOwner();
-        let balance = myBalance();
-        throwUnless(37, balance > msg.amount);
-
-        message(MessageParameters {
-            to: sender(),    
-            value: msg.amount, 
-            bounce: true
-        });
     }
 }
