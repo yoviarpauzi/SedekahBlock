@@ -23,7 +23,12 @@ message DeleteCampaign {
     id: Int as uint32;
 }
 
-message DeleteAllCampaign{}
+message OwnerDeposit{}
+
+message OwnerWithdraw{
+    amount: Int as uint256;
+}
+
 
 contract Donation with Ownable {
     owner: Address;
@@ -52,13 +57,6 @@ contract Donation with Ownable {
 
     get fun totalCampaign(): Int{
         return self.numOfCampaign;
-    }
-
-    receive(msg: DeleteAllCampaign) {
-        self.requireOwner();
-
-        self.campaigns = emptyMap();
-        self.numOfCampaign = 0;
     }
 
     receive(msg: CreateCampaign) {
@@ -94,17 +92,18 @@ contract Donation with Ownable {
         let balance = myBalance();
 
         throwUnless(37, campaign!!.balance >= ton("1"));
-        throwUnless(37, campaign!!.balance >= msg.amount);
         throwUnless(37, balance > msg.amount);
 
-        self.campaigns.set(msg.id, Campaign{
+        self.campaigns.set(msg.id, Campaign {
             id: msg.id,
-            balance: campaign!!.balance - msg.amount,
+            balance: campaign!!.balance - msg.amount
         });
 
         message(MessageParameters {
             to: sender(),    
             value: msg.amount, 
+            mode: SendPayFwdFeesSeparately,
+            bounce: true
         });
     }
 
@@ -114,5 +113,21 @@ contract Donation with Ownable {
 
         let _ = self.campaigns.del(msg.id);
         self.numOfCampaign -= 1;
+    }
+
+    receive(msg: OwnerDeposit) {
+        self.requireOwner();
+    }
+
+    receive(msg: OwnerWithdraw) {
+        self.requireOwner();
+        let balance = myBalance();
+        throwUnless(37, balance > msg.amount);
+
+        message(MessageParameters {
+            to: sender(),    
+            value: msg.amount, 
+            bounce: true
+        });
     }
 }

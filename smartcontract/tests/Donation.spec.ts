@@ -123,7 +123,7 @@ describe('Donation', () => {
         const withdrawMessage: WithdrawCampaign = {
             $$type: 'WithdrawCampaign',
             id: 1n,
-            amount: toNano(1),
+            amount: toNano(0.5),
         };
 
         await donation.send(
@@ -138,7 +138,7 @@ describe('Donation', () => {
         await donation.send(
             deployer.getSender(),
             {
-                value: toNano(100000.05),
+                value: toNano(1.05),
                 bounce: true,
             },
             donateMessage,
