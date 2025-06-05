@@ -89,7 +89,6 @@ contract Donation with Ownable {
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
 
-        throwUnless(37, campaign!!.balance >= ton("1"));
         throwUnless(37, balance > msg.amount);
 
         self.campaigns.set(msg.id, Campaign {
