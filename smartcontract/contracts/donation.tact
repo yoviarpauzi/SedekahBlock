@@ -29,7 +29,6 @@ message OwnerWithdraw{
     amount: Int as uint256;
 }
 
-
 contract Donation with Ownable {
     owner: Address;
     campaigns: map<Int as uint23, Campaign>;
@@ -86,7 +85,6 @@ contract Donation with Ownable {
     receive(msg: WithdrawCampaign){
         self.requireOwner();
         throwUnless(134, self.campaigns.exists(msg.id));
-        throwUnless(134, msg.amount > 0);
 
         let campaign = self.campaigns.get(msg.id);
         let balance = myBalance();
