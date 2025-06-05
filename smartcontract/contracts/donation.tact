@@ -116,7 +116,7 @@ contract Donation with Ownable {
         let toCampaign = self.campaigns.get(msg.toId);
 
         throwUnless(37, balance > msg.amount);
-        throwUnless(32, campaign!!.balance > msg.amount);
+        throwUnless(37, campaign!!.balance > msg.amount);
 
         self.campaigns.set(msg.id, Campaign {
             id: msg.id,
