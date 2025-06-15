@@ -27,6 +27,8 @@ const authMiddleware = async (
       throw new ResponseError(404, "user not found");
     }
 
+    req.user = user;
+
     next();
   } catch (err: any) {
     res.clearCookie("accessToken");

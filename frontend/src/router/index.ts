@@ -16,6 +16,7 @@ import AdminCampaign from "@/pages/Admin/Campaign/index.vue";
 import AdminCreateCampaign from "@/pages/Admin/Campaign/CreateCampaign.vue";
 import AdminUpdateCampaign from "@/pages/Admin/Campaign/UpdateCampaign.vue";
 import AdminUser from "@/pages/Admin/Users/index.vue";
+import AdminCampaignDetail from "@/pages/Admin/Campaign/DetailCampaign.vue";
 import DetailCampaign from "@/pages/User/Campaign/DetailCampaign.vue";
 
 export const routes: RouteRecordRaw[] = [
@@ -74,6 +75,13 @@ export const routes: RouteRecordRaw[] = [
           requireExistId: true,
         },
         component: AdminUpdateCampaign,
+      },
+      {
+        path: "campaigns/details/:id",
+        meta: {
+          requireExistId: true,
+        },
+        component: AdminCampaignDetail,
       },
     ],
   },

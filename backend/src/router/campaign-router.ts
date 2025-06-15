@@ -1,6 +1,7 @@
 import express from "express";
 import campaignController from "../controller/campaign-controller";
 import adminMiddleware from "../middleware/admin-auth";
+import authMiddleware from "../middleware/auth-middleware";
 import createMulterUploader from "../utils/createMulterUploader";
 
 const uploadCampaignThumbnail = createMulterUploader(
@@ -35,6 +36,11 @@ router.get(
   "/api/campaigns/check",
   adminMiddleware,
   campaignController.isTitleExist
+);
+router.patch(
+  "/api/campaigns/updateBalanceAndCollected/:id",
+  authMiddleware,
+  campaignController.updateBalanceAndCollected
 );
 router.get("/api/campaigns/id/:id", campaignController.getCampaign);
 router.get("/api/campaigns", campaignController.getCampaigns);

@@ -8,7 +8,11 @@
     <FormField name="thumbnail">
       <FormItem>
         <FormLabel for="content"
-          >Thumbnail<span class="text-red-400">*</span></FormLabel
+          >Thumbnail<span
+            v-show="route.path.includes('/create')"
+            class="text-red-400"
+            >*</span
+          ></FormLabel
         >
         <FormControl>
           <Input type="file" @change="onFileChange" name="content" />
@@ -95,12 +99,7 @@
         </FormControl>
         <FormDescription>
           Sama Dengan :
-          {{
-            totalTargetPrice.toLocaleString("id-ID", {
-              style: "currency",
-              currency: "IDR",
-            })
-          }}
+          {{ totalTargetPrice }}
         </FormDescription>
         <FormMessage />
       </FormItem>
@@ -109,7 +108,13 @@
     <!-- end_at -->
     <FormField name="end_at">
       <FormItem class="flex flex-col">
-        <FormLabel>End At <span class="text-red-400">*</span></FormLabel>
+        <FormLabel
+          >End At<span
+            v-show="route.path.includes('/create')"
+            class="text-red-400"
+            >*</span
+          ></FormLabel
+        >
         <Popover>
           <PopoverTrigger as-child>
             <FormControl>
@@ -218,7 +223,7 @@ import useCategoryStore from "@/stores/category-store";
 import axios from "axios";
 import getTonPrice from "@/utils/checkTonPrice";
 import { serverURI } from "@/utils/environment";
-import tonWeb from "@/utils/ton-web";
+import { useRoute } from "vue-router";
 
 const props = defineProps<{
   values: any;
@@ -227,6 +232,10 @@ const props = defineProps<{
   action: string;
   isFieldDirty: Function;
 }>();
+
+const tonPrice = ref<number>(0);
+const categoryStore = useCategoryStore();
+const route = useRoute();
 
 const toolbarOptions = [
   { header: [1, 2, 3, false] },
@@ -275,8 +284,6 @@ const modules = [
   },
 ];
 
-const categoryStore = useCategoryStore();
-
 const df = new DateFormatter("id-ID", {
   dateStyle: "long",
 });
@@ -292,30 +299,31 @@ const dateValue = computed({
   },
 });
 
-function onDateChange(val: any) {
+const totalTargetPrice = computed(() => {
+  return (tonPrice.value * (props.values.target ?? 0)).toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  });
+});
+
+const onDateChange = (val: any) => {
   if (val) {
     props.setFieldValue("end_at", val.toString());
   } else {
     props.setFieldValue("end_at", undefined);
   }
-}
+};
 
-const tonPrice = ref<number>(0);
-
-const totalTargetPrice = computed(() => {
-  return tonPrice.value * (props.values.target ?? 0);
-});
-
-function onFileChange(event: Event) {
+const onFileChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files && input.files[0]) {
     props.setFieldValue("thumbnail", input.files[0]);
   }
-}
+};
 
-function onInputChange(field: any, value: any) {
+const onInputChange = (field: any, value: any) => {
   props.setFieldValue(field, value);
-}
+};
 
 onMounted(async () => {
   await categoryStore.fetchCategories();

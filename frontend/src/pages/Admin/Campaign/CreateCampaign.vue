@@ -26,6 +26,7 @@ import { Address, toNano, beginCell } from "@ton/core";
 
 const router = useRouter();
 const campaignStore = useCampaignStore();
+const { sendTransaction } = useTonConnect();
 
 const formSchema = toTypedSchema(
   z.object({
@@ -107,7 +108,6 @@ const createCampaign = handleSubmit(async (values) => {
       }
     }
 
-    const { sendTransaction } = useTonConnect();
     const campaign = await campaignStore.addCampaign(form);
 
     const { sendMessage, success, fail } = useSendMessage({

@@ -125,7 +125,7 @@ contract Donation with Ownable {
 
         self.campaigns.set(msg.toId, Campaign {
             id: msg.toId,
-            balance: campaign!!.balance + msg.amount
+            balance: toCampaign!!.balance + msg.amount
         });
     }
 

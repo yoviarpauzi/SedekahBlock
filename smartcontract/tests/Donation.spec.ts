@@ -2,7 +2,6 @@ import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { toNano } from '@ton/core';
 import { CreateCampaign, DeleteCampaign, Donation, ReceiveDonation, WithdrawCampaign } from '../wrappers/Donation';
 import '@ton/test-utils';
-import { create } from 'domain';
 
 describe('Donation', () => {
     let blockchain: Blockchain;
@@ -38,7 +37,7 @@ describe('Donation', () => {
         // blockchain and donation are ready to use
     });
 
-    it('should create campaign', async () => {
+    it('should success create campaign', async () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
             id: 1n,
@@ -74,6 +73,31 @@ describe('Donation', () => {
         expect(campaign2Exist).toBeTruthy();
     });
 
+    it('should error create campaign with same id', async () => {
+        const createMessage: CreateCampaign = {
+            $$type: 'CreateCampaign',
+            id: 1n,
+        };
+
+        await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano(0.05),
+            },
+            createMessage,
+        );
+
+        const result: any = await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano(0.05),
+            },
+            createMessage,
+        );
+
+        expect(result.transactions[1].description.computePhase.exitCode).toBe(134);
+    });
+
     it('should receive donation', async () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
@@ -84,7 +108,6 @@ describe('Donation', () => {
             $$type: 'ReceiveDonation',
             id: 1n,
             amount: 1n,
-
         };
 
         await donation.send(
@@ -107,6 +130,55 @@ describe('Donation', () => {
 
         const campaignBalance = await donation.getCampaignBalance(1n);
         expect(campaignBalance).toBe(1n);
+    });
+
+    it('should error receive donation', async () => {
+        const createMessage: CreateCampaign = {
+            $$type: 'CreateCampaign',
+            id: 1n,
+        };
+
+        const donateMessage: ReceiveDonation = {
+            $$type: 'ReceiveDonation',
+            id: 2n,
+            amount: 1n,
+        };
+
+        const donateMessage2: ReceiveDonation = {
+            $$type: 'ReceiveDonation',
+            id: 1n,
+            amount: 0n,
+        };
+
+        await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano(0.05),
+                bounce: true,
+            },
+            createMessage,
+        );
+
+        const donateCampaignNotExistId: any = await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano(1.05),
+                bounce: true,
+            },
+            donateMessage,
+        );
+
+        const donateCampaignZeroAmount: any = await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano(0.5),
+                bounce: true,
+            },
+            donateMessage2,
+        );
+
+        expect(donateCampaignNotExistId.transactions[1].description.computePhase.exitCode).toBe(134);
+        expect(donateCampaignZeroAmount.transactions[1].description.computePhase.exitCode).toBe(134);
     });
 
     it('should withdraw campaign', async () => {
@@ -161,6 +233,11 @@ describe('Donation', () => {
         expect(campaignBeforeWithdrawBalance).toBeGreaterThan(campaignAfterWithdrawBalance);
     });
 
+    it('should error withdraw campaign', async () => {});
+
+    it('should success transfer balance between contract', async () => {});
+    it('should error transfer balance between contract', async () => {});
+
     it('should delete campaign', async () => {
         const createMessage: CreateCampaign = {
             $$type: 'CreateCampaign',
@@ -193,4 +270,6 @@ describe('Donation', () => {
         const totalCampaign = await donation.getTotalCampaign();
         expect(totalCampaign).toBe(0n);
     });
+
+    it('should error delete campaign', async () => {});
 });

@@ -41,6 +41,7 @@ import { onMounted, ref } from "vue";
 import axios from "axios";
 import { serverURI } from "@/utils/environment";
 import Button from "@/components/ui/button/Button.vue";
+import smartcontract from "@/utils/smartcontract";
 
 const fetchHomeData = ref();
 
@@ -49,5 +50,7 @@ onMounted(async () => {
 
   const { data } = res.data;
   fetchHomeData.value = data;
+  const isCampaignExist = await smartcontract.isCampaignExist(44);
+  console.log(isCampaignExist);
 });
 </script>

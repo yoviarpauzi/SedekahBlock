@@ -34,6 +34,8 @@ const adminMiddleware = async (
       );
     }
 
+    req.user = user;
+
     next();
   } catch (err: any) {
     res.clearCookie("accessToken");

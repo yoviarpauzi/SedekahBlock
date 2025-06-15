@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs/promises";
 import moveImageFromTemp from "../utils/moveImageFromTemp";
 import extractMatches from "../utils/extractImageFileName";
+import { anyMap } from "jest-mock-extended";
 
 const regex = /\/campaigns\/content\/([^"' ]+)/g;
 const urlRegex: RegExp = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
@@ -226,13 +227,35 @@ const uploadCampaignImage = async (
   }
 };
 
+const updateBalanceAndCollected = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user!;
+    const paramsId = req.params.id ?? "0";
+    const id = Number(paramsId);
+    const amount = Number(req.body.amount);
+
+    await campaignService.updateBalanceAndCollected(
+      id,
+      user.id,
+      req.body.link,
+      amount
+    );
+
+    res.status(200).json({
+      message: "success update balance and collected",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const destroy = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const campaignId = Number(req.params.id);
-
-    if (isNaN(campaignId)) {
-      throw new ResponseError(400, "Invalid campaign ID");
-    }
 
     const campaign = await campaignService.getCampaign(campaignId);
 
@@ -281,6 +304,20 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const toggleStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const paramsId = Number(req.params.id);
+
+  const campaign = await campaignService.getCampaign(paramsId);
+
+  if (!campaign) {
+    throw new ResponseError(404, "campaign id not found");
+  }
+};
+
 export default {
   create,
   update,
@@ -289,4 +326,5 @@ export default {
   isTitleExist,
   uploadCampaignImage,
   destroy,
+  updateBalanceAndCollected,
 };

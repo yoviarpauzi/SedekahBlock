@@ -1,4 +1,6 @@
+import { connect } from "node:http2";
 import { Prisma } from "../../generated/prisma";
+import { Decimal } from "../../generated/prisma/runtime/library";
 import prisma from "../config/database";
 import ResponseError from "../error/response-error";
 
@@ -36,7 +38,8 @@ const update = async (id: number, campaign: Campaign) => {
       throw new ResponseError(404, "campaign id not found");
     }
 
-    const isCampaignTitleExists = await isCampaignTitleExist(campaign.title);
+    const isCampaignTitleExists =
+      isCampaignExists.title == campaign.title ? true : false;
 
     if (isCampaignTitleExists && isCampaignExists.title !== campaign.title) {
       throw new ResponseError(409, "campaign title is already exists");
@@ -146,13 +149,13 @@ const getAllCampaign = async (query: any) => {
 
 const isCampaignTitleExist = async (title: string): Promise<boolean> => {
   try {
-    const isExist = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaign.findUnique({
       where: {
         title: title,
       },
     });
 
-    if (isExist) {
+    if (campaign) {
       return true;
     }
 
@@ -164,13 +167,13 @@ const isCampaignTitleExist = async (title: string): Promise<boolean> => {
 
 const destroy = async (id: number) => {
   try {
-    const isExist = await prisma.campaign.findUnique({
+    const campaign = await prisma.campaign.findUnique({
       where: {
         id,
       },
     });
 
-    if (!isExist) {
+    if (!campaign) {
       throw new ResponseError(404, "campaign ID not found");
     }
 
@@ -184,6 +187,92 @@ const destroy = async (id: number) => {
   }
 };
 
+const updateBalanceAndCollected = async (
+  id: number,
+  userId: number,
+  link: string,
+  amount: number
+) => {
+  try {
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        balance: true,
+        collected: true,
+        operational_costs: true,
+        total_withdraw_amount: true,
+        donors: {
+          where: {
+            campaigns_id: id,
+            users_id: userId,
+          },
+          select: {
+            amount: true,
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      throw new ResponseError(404, "campaign id not found");
+    }
+
+    const isEligible = campaign.collected.greaterThanOrEqualTo(1);
+
+    const updateCollected = campaign.collected.plus(new Decimal(amount));
+    const updateBalance = isEligible
+      ? campaign.collected.div(0.95).minus(campaign.total_withdraw_amount)
+      : campaign.balance.plus(new Decimal(amount));
+    const updateOperationalCosts = isEligible
+      ? campaign.collected.div(0.05)
+      : new Decimal(0);
+    const currentDonorAmount = campaign.donors[0]?.amount ?? new Decimal(0);
+    const updateDonorAmount = currentDonorAmount.plus(new Decimal(amount));
+
+    await prisma.campaign.update({
+      where: {
+        id: id,
+      },
+      data: {
+        balance: updateBalance,
+        collected: updateCollected,
+        operational_costs: updateOperationalCosts,
+        donation_histories: {
+          create: {
+            users_id: userId,
+            amount: amount,
+            description: "donation",
+            link: link,
+          },
+        },
+        donors: {
+          upsert: {
+            where: {
+              users_id_campaigns_id: {
+                users_id: userId,
+                campaigns_id: id,
+              },
+            },
+            create: {
+              amount: amount,
+              user: {
+                connect: { id: userId },
+              },
+            },
+            update: {
+              amount: updateDonorAmount,
+            },
+          },
+        },
+      },
+    });
+  } catch (err: any) {
+    throw err;
+  }
+};
+
 export default {
   create,
   update,
@@ -191,4 +280,5 @@ export default {
   getAllCampaign,
   isCampaignTitleExist,
   destroy,
+  updateBalanceAndCollected,
 };

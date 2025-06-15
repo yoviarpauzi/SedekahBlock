@@ -9,6 +9,7 @@ interface Campaign {
   target: number;
   balance: number;
   collected: number;
+  is_active: boolean;
   end_at: Date;
   thumbnail: string | File;
   story: string;
@@ -19,6 +20,8 @@ interface Campaign {
     fund_disbursement_histories?: number;
     donation_histories?: number;
   };
+  created_at: Date;
+  updated_at: Date;
 }
 
 const useCampaignStore = defineStore("campaign", {
@@ -89,6 +92,23 @@ const useCampaignStore = defineStore("campaign", {
         await axios.put(`${serverURI}/api/campaigns/id/${id}`, form, {
           withCredentials: true,
         });
+      } catch (err) {
+        throw err;
+      }
+    },
+
+    async updateBalanceAndCollected(id: number, amount: number, link: string) {
+      try {
+        await axios.patch(
+          `${serverURI}/api/campaigns/updateBalanceAndCollected/${id}`,
+          {
+            amount: amount,
+            link: link,
+          },
+          {
+            withCredentials: true,
+          }
+        );
       } catch (err) {
         throw err;
       }
