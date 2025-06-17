@@ -1,4 +1,3 @@
-import { connect } from "node:http2";
 import { Prisma } from "../../generated/prisma";
 import { Decimal } from "../../generated/prisma/runtime/library";
 import prisma from "../config/database";
@@ -273,6 +272,73 @@ const updateBalanceAndCollected = async (
   }
 };
 
+const getNews = async (id: number, page: number = 1) => {
+  const skip = 10 * (page - 1);
+  const take = 10;
+
+  return await prisma.news.findMany({
+    where: {
+      campaigns_id: id,
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    take,
+    skip,
+  });
+};
+
+const getFundDisbursement = async (id: number, page: number = 1) => {
+  const skip = 10 * (page - 1);
+  const take = 10;
+
+  return await prisma.fundDisbursementHistories.findMany({
+    where: {
+      campaigns_id: id,
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    take,
+    skip,
+  });
+};
+
+const getHistoryDonation = async (id: number, page: number = 1) => {
+  const skip = 10 * (page - 1);
+  const take = 10;
+
+  return await prisma.donationHistory.findMany({
+    where: {
+      campaigns_id: id,
+    },
+    orderBy: {
+      created_at: "desc",
+    },
+    include: {
+      users: {
+        select: {
+          name: true,
+          profile_picture: true,
+        },
+      },
+    },
+    take,
+    skip,
+  });
+};
+
+const toggleStatus = async (id: number, status: boolean) => {
+  return await prisma.campaign.update({
+    where: {
+      id: id,
+    },
+    data: {
+      is_active: !status,
+    },
+  });
+};
+
 export default {
   create,
   update,
@@ -281,4 +347,8 @@ export default {
   isCampaignTitleExist,
   destroy,
   updateBalanceAndCollected,
+  getNews,
+  getFundDisbursement,
+  getHistoryDonation,
+  toggleStatus,
 };

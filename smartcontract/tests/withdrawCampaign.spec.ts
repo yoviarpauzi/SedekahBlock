@@ -74,5 +74,17 @@ describe('Donation: Withdraw Campaign', () => {
         expect(campaignBeforeWithdrawBalance).toBeGreaterThan(campaignAfterWithdrawBalance);
     });
 
-    it('should be fail withdraw campaign', async () => {});
+    it('should be fail withdraw campaign if campaign id not exist', async () => {
+        await Promise.all([createCampaign(1n), donateCampaign(1n, 1n)]);
+
+        const withdrawCampaignIdNotExist: any = await withdrawCampaign(2n, 1n);
+        expect(withdrawCampaignIdNotExist.transactions[1].description.computePhase.exitCode).toBe(134);
+    });
+
+    it('should be fail withdraw campaign if withdraw amount is zero', async () => {
+        await Promise.all([createCampaign(1n), donateCampaign(1n, 1n)]);
+
+        const withdrawCampaignWithZeroAmount: any = await withdrawCampaign(1n, 0n);
+        expect(withdrawCampaignWithZeroAmount.transactions[1].description.computePhase.exitCode).toBe(134);
+    });
 });

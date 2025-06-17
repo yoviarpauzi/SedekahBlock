@@ -10,7 +10,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
         (SELECT json_agg(row_to_json(c)) FROM (
           SELECT *
           FROM campaigns
-          ORDER BY balance ASC, end_at ASC
+          ORDER BY end_at ASC, balance ASC
           LIMIT 10
         ) c) AS "urgentFundraising",
         (SELECT json_agg(row_to_json(c)) FROM (

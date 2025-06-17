@@ -54,7 +54,7 @@
 
         <div class="my-4 p-4 border shadow-sm rounded-sm flex flex-col">
           <RouterLink
-            to=""
+            :to="`/campaigns/details/${queryId}/news`"
             class="py-2 border-b flex items-center justify-between"
           >
             <div>
@@ -87,7 +87,7 @@
             <ChevronRight />
           </RouterLink>
           <RouterLink
-            to=""
+            :to="`/campaigns/details/${queryId}/fund_disbursment`"
             class="py-2 mt-2 border-b flex items-center justify-between"
           >
             <div>
@@ -118,7 +118,7 @@
             <ChevronRight />
           </RouterLink>
           <RouterLink
-            to=""
+            :to="`/campaigns/details/${queryId}/histories`"
             class="py-2 mt-2 border-b flex items-center justify-between"
           >
             <div class="flex items-center gap-x-8">
@@ -182,6 +182,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Animasi transaksi anda sedang diproses -->
+  <Transition name="fade">
+    <div
+      v-if="loading"
+      class="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-6 rounded-md shadow-md flex flex-col items-center">
+        <svg
+          class="animate-spin h-8 w-8 text-green-500 mb-2"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8H4z"
+          ></path>
+        </svg>
+        <p class="text-sm text-gray-700">Transaksi sedang diproses...</p>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -220,6 +252,7 @@ const route = useRoute();
 const queryId = Number(route.params.id);
 const campaignStore = useCampaignStore();
 const expanded = ref(false);
+const loading = ref(false);
 const formScheme = toTypedSchema(
   z.object({
     amount: z
@@ -270,16 +303,23 @@ const onSubmit = handleSubmit(async (values) => {
     await sendMessage();
 
     if (success.value) {
-      const lastTransactionlink = await getLastTransactionsLink(walletAddress);
-      await Promise.all([
-        campaignStore.updateBalanceAndCollected(
-          queryId,
-          amount,
-          lastTransactionlink
-        ),
-        campaignStore.getCampaign(queryId),
-      ]);
+      loading.value = true;
+      const lastTransactionlink = await getLastTransactionsLink(
+        walletAddress,
+        amount
+      );
+
+      await campaignStore
+        .updateBalanceAndCollected(queryId, amount, lastTransactionlink)
+        .then(async () => {
+          await campaignStore.getCampaign(queryId);
+        })
+        .finally(() => {
+          loading.value = false;
+        });
+
       showToast("success", "success", "success donation");
+      balance.value = (Number(balance.value) - amount).toFixed(2);
       resetForm();
     }
 
@@ -327,6 +367,17 @@ onMounted(async () => {
     await getWalletBalance();
   }
 });
+
+watch(
+  () => loading.value,
+  (val) => {
+    document.body.style.overflow = val ? "hidden" : "auto";
+
+    if (!val) {
+      document.body.style.overflow = "auto";
+    }
+  }
+);
 </script>
 
 <style scoped>

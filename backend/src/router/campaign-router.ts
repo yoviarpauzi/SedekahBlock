@@ -44,5 +44,12 @@ router.patch(
 );
 router.get("/api/campaigns/id/:id", campaignController.getCampaign);
 router.get("/api/campaigns", campaignController.getCampaigns);
+router.get("/api/campaigns/id/:id/news", campaignController.getNews);
+router.get(
+  "/api/campaigns/id/:id/fundDisbursement",
+  campaignController.getFundDisbursement
+);
+router.get("/api/campaigns/id/:id/histories", campaignController.getHistories);
+router.patch("/api/campaigns/id/:id/status", campaignController.toggleStatus);
 
 export default router;

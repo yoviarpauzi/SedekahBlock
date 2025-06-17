@@ -56,13 +56,19 @@ describe('Donation: Receive Donation', () => {
         expect(campaignBalance).toBe(1n);
     });
 
-    it('should error receive donation', async () => {
+    it("should error receive donation if campaign doesn't exist", async () => {
         await createCampaign(1n);
 
         const donateCampaignNotExistId: any = await donateCampaign(2n, 1n);
-        const donateCampaignZeroAmount: any = await donateCampaign(1n, 0n);
 
         expect(donateCampaignNotExistId.transactions[1].description.computePhase.exitCode).toBe(134);
+    });
+
+    it('should error receive donation if donation amount is zero', async () => {
+        await createCampaign(1n);
+
+        const donateCampaignZeroAmount: any = await donateCampaign(1n, 0n);
+
         expect(donateCampaignZeroAmount.transactions[1].description.computePhase.exitCode).toBe(134);
     });
 });

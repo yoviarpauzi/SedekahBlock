@@ -18,6 +18,9 @@ import AdminUpdateCampaign from "@/pages/Admin/Campaign/UpdateCampaign.vue";
 import AdminUser from "@/pages/Admin/Users/index.vue";
 import AdminCampaignDetail from "@/pages/Admin/Campaign/DetailCampaign.vue";
 import DetailCampaign from "@/pages/User/Campaign/DetailCampaign.vue";
+import DonationHistory from "@/pages/User/Campaign/DonationHistory.vue";
+import News from "@/pages/User/Campaign/News.vue";
+import FundDisbursement from "@/pages/User/Campaign/FundDisbursement.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -35,6 +38,27 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "campaigns/details/:id",
         component: DetailCampaign,
+      },
+      {
+        path: "campaigns/details/:id/histories",
+        meta: {
+          requireExistId: true,
+        },
+        component: DonationHistory,
+      },
+      {
+        path: "campaigns/details/:id/news",
+        meta: {
+          requireExistId: true,
+        },
+        component: News,
+      },
+      {
+        path: "campaigns/details/:id/fund_disbursment",
+        meta: {
+          requireExistId: true,
+        },
+        component: FundDisbursement,
       },
     ],
   },

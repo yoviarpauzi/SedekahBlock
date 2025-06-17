@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs/promises";
 import moveImageFromTemp from "../utils/moveImageFromTemp";
 import extractMatches from "../utils/extractImageFileName";
-import { anyMap } from "jest-mock-extended";
+import prisma from "../config/database";
 
 const regex = /\/campaigns\/content\/([^"' ]+)/g;
 const urlRegex: RegExp = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
@@ -61,7 +61,11 @@ export const update = async (
       throw new ResponseError(400, "Invalid campaign id");
     }
 
-    const oldCampaign = await campaignService.getCampaign(id);
+    const oldCampaign = await prisma.campaign.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!oldCampaign) {
       throw new ResponseError(404, "Campaign ID not found");
@@ -257,7 +261,11 @@ const destroy = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const campaignId = Number(req.params.id);
 
-    const campaign = await campaignService.getCampaign(campaignId);
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+    });
 
     if (!campaign) {
       throw new ResponseError(404, "Campaign not found");
@@ -311,11 +319,104 @@ const toggleStatus = async (
 ) => {
   const paramsId = Number(req.params.id);
 
-  const campaign = await campaignService.getCampaign(paramsId);
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: paramsId,
+    },
+  });
 
   if (!campaign) {
     throw new ResponseError(404, "campaign id not found");
   }
+
+  const toggleStatusCampaign = await campaignService.toggleStatus(
+    campaign.id,
+    campaign.is_active
+  );
+
+  res.status(200).json({
+    message: "success change status campaign",
+  });
+};
+
+const getNews = async (req: Request, res: Response, next: NextFunction) => {
+  const paramsId = Number(req.params.id);
+  const pageQuery = req.query.page ?? "1";
+  const page = Number(pageQuery);
+
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: Number(paramsId),
+    },
+  });
+
+  if (!campaign) {
+    throw new ResponseError(404, "campaign id not found");
+  }
+
+  const news = await campaignService.getNews(paramsId, page);
+
+  res.status(200).json({
+    message: "success retrieve news",
+    news,
+  });
+};
+
+const getFundDisbursement = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const paramsId = Number(req.params.id);
+  const pageQuery = req.query.page ?? "1";
+  const page = Number(pageQuery);
+
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: paramsId,
+    },
+  });
+
+  if (!campaign) {
+    throw new ResponseError(404, "campaign id not found");
+  }
+
+  const fundDisbursement = await campaignService.getFundDisbursement(
+    paramsId,
+    page
+  );
+
+  res.status(200).json({
+    message: "success retrieve news",
+    fundDisbursement,
+  });
+};
+
+const getHistories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const paramsId = Number(req.params.id);
+  const pageQuery = req.query.page ?? "1";
+  const page = Number(pageQuery);
+
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: paramsId,
+    },
+  });
+
+  if (!campaign) {
+    throw new ResponseError(404, "campaign id not found");
+  }
+
+  const histories = await campaignService.getHistoryDonation(paramsId, page);
+
+  res.status(200).json({
+    message: "success retrieve news",
+    histories,
+  });
 };
 
 export default {
@@ -327,4 +428,8 @@ export default {
   uploadCampaignImage,
   destroy,
   updateBalanceAndCollected,
+  toggleStatus,
+  getNews,
+  getFundDisbursement,
+  getHistories,
 };
