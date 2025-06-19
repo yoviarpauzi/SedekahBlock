@@ -2,8 +2,6 @@ import { serverURI } from "@/utils/environment";
 import { type ColumnDef } from "@tanstack/vue-table";
 import axios from "axios";
 import { h } from "vue";
-import Button from "@/components/ui/button/Button.vue";
-import { ArrowUpDown } from "lucide-vue-next";
 import DropdownAction from "./DataTableDropDown.vue";
 
 export interface Campaign {
@@ -27,17 +25,7 @@ const categoryMap = Object.fromEntries(
 export const columns: ColumnDef<Campaign>[] = [
   {
     accessorKey: "title",
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () =>
-            column.toggleSorting(column.getIsSorted() === "asc", true),
-        },
-        () => ["Title", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
-      );
-    },
+    header: () => "Title",
   },
   {
     accessorKey: "categories_id",
@@ -50,45 +38,15 @@ export const columns: ColumnDef<Campaign>[] = [
   },
   {
     accessorKey: "balance",
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () =>
-            column.toggleSorting(column.getIsSorted() === "asc", true),
-        },
-        () => ["Balance", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
-      );
-    },
+    header: () => "Balance",
   },
   {
     accessorKey: "collected",
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () =>
-            column.toggleSorting(column.getIsSorted() === "asc", true),
-        },
-        () => ["Collected", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
-      );
-    },
+    header: () => "Collected",
   },
   {
     accessorKey: "target",
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () =>
-            column.toggleSorting(column.getIsSorted() === "asc", true),
-        },
-        () => ["Target", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
-      );
-    },
+    header: () => "Target",
     cell: ({ row }) => {
       const formatted: string = row.getValue("target") + " TON";
       return h("div", { class: "text-left " }, formatted);
@@ -96,17 +54,7 @@ export const columns: ColumnDef<Campaign>[] = [
   },
   {
     accessorKey: "end_at",
-    header: ({ column }) => {
-      return h(
-        Button,
-        {
-          variant: "ghost",
-          onClick: () =>
-            column.toggleSorting(column.getIsSorted() === "asc", true),
-        },
-        () => ["End At", h(ArrowUpDown, { class: "ml-2 h-4 w-4" })]
-      );
-    },
+    header: () => "End at",
     cell: ({ row }) => {
       const endAt: string = row.getValue("end_at");
       const formatted = new Date(endAt).toLocaleDateString();

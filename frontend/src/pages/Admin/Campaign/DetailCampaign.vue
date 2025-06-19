@@ -39,10 +39,14 @@
   <div class="p-4 bg-white shadow-sm border rounded-md campaign_story relative">
     <p class="text-lg font-semibold">Kabar Terbaru</p>
     <div class="flex justify-end my-2">
-      <Button variant="success">Add News</Button>
+      <RouterLink :to="`/admin/campaigns/details/${queryId}/news/create`">
+        <Button variant="success">Add News</Button>
+      </RouterLink>
     </div>
 
-    <div></div>
+    <div>
+      <NewsTable />
+    </div>
   </div>
 
   <DeleteCampaign
@@ -61,6 +65,7 @@ import DeleteCampaign from "./DeleteCampaign.vue";
 import axios from "axios";
 import { serverURI } from "@/utils/environment";
 import showToast from "@/utils/showToast";
+import NewsTable from "./NewsTable.vue";
 
 const route = useRoute();
 const queryId = Number(route.params.id);

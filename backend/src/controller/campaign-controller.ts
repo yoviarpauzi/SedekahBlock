@@ -6,6 +6,7 @@ import fs from "fs/promises";
 import moveImageFromTemp from "../utils/moveImageFromTemp";
 import extractMatches from "../utils/extractImageFileName";
 import prisma from "../config/database";
+import { title } from "process";
 
 const regex = /\/campaigns\/content\/([^"' ]+)/g;
 const urlRegex: RegExp = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
@@ -329,10 +330,7 @@ const toggleStatus = async (
     throw new ResponseError(404, "campaign id not found");
   }
 
-  const toggleStatusCampaign = await campaignService.toggleStatus(
-    campaign.id,
-    campaign.is_active
-  );
+  await campaignService.toggleStatus(campaign.id, campaign.is_active);
 
   res.status(200).json({
     message: "success change status campaign",
@@ -354,11 +352,14 @@ const getNews = async (req: Request, res: Response, next: NextFunction) => {
     throw new ResponseError(404, "campaign id not found");
   }
 
-  const news = await campaignService.getNews(paramsId, page);
+  const { data, rowCount } = await campaignService.getNews(paramsId, page);
+  console.log(data);
+  console.log(rowCount);
 
   res.status(200).json({
     message: "success retrieve news",
-    news,
+    news: data,
+    rowCount: rowCount,
   });
 };
 
@@ -381,14 +382,15 @@ const getFundDisbursement = async (
     throw new ResponseError(404, "campaign id not found");
   }
 
-  const fundDisbursement = await campaignService.getFundDisbursement(
+  const { data, rowCount } = await campaignService.getFundDisbursement(
     paramsId,
     page
   );
 
   res.status(200).json({
     message: "success retrieve news",
-    fundDisbursement,
+    fundDisbursement: data,
+    rowCount,
   });
 };
 
@@ -411,13 +413,134 @@ const getHistories = async (
     throw new ResponseError(404, "campaign id not found");
   }
 
-  const histories = await campaignService.getHistoryDonation(paramsId, page);
+  const { data, rowCount } = await campaignService.getHistoryDonation(
+    paramsId,
+    page
+  );
 
   res.status(200).json({
     message: "success retrieve news",
-    histories,
+    histories: data,
+    rowCount,
   });
 };
+
+const uploadNewsImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.file) {
+      throw new ResponseError(400, "no file uploaded");
+    }
+
+    const fileUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/campaigns/news/content/${req.file.filename}`;
+
+    res.status(200).json({
+      message: "success upload image content",
+      url: fileUrl,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const createNews = async (req: Request, res: Response, next: NextFunction) => {
+  const campaignId = Number(req.params.id);
+  const content = req.body.body;
+  const urlRegex: RegExp =
+    /https?:\/\/[^"' ]+\/campaigns\/news\/content\/([^"' ]+)/g;
+  const tempDir = path.resolve(__dirname, "./../temp/campaigns/news/content");
+  const storageDir = path.resolve(
+    __dirname,
+    "./../storage/campaigns/news/content"
+  );
+
+  await moveImageFromTemp({
+    content,
+    urlRegex,
+    tempDir,
+    storageDir,
+    baseUrl: getBaseUrl(req),
+  });
+
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+  });
+
+  if (!campaign) {
+    throw new ResponseError(404, "campaign id not found!");
+  }
+
+  const news = await campaignService.createNews(
+    campaignId,
+    req.body.title,
+    req.body.body
+  );
+
+  res.status(200).json({
+    message: "success create news",
+    news,
+  });
+};
+
+const updateNews = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+const deleteNews = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+const uploadWithdrawImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.file) {
+      throw new ResponseError(400, "no file uploaded");
+    }
+
+    const fileUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/campaigns/withdraw/content/${req.file.filename}`;
+
+    res.status(200).json({
+      message: "success upload image content",
+      url: fileUrl,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const createWithdraw = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+const updateWithdraw = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+const deleteWithdraw = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
 
 export default {
   create,
@@ -432,4 +555,8 @@ export default {
   getNews,
   getFundDisbursement,
   getHistories,
+  uploadNewsImage,
+  createNews,
+  updateNews,
+  deleteNews,
 };

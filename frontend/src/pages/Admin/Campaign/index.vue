@@ -16,7 +16,7 @@ const campaignStore = useCampaignStore();
 const route = useRoute();
 
 onMounted(async () => {
-  await campaignStore.getCampaigns();
+  await campaignStore.getCampaigns(10);
 });
 
 watch(

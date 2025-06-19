@@ -276,39 +276,48 @@ const getNews = async (id: number, page: number = 1) => {
   const skip = 10 * (page - 1);
   const take = 10;
 
-  return await prisma.news.findMany({
-    where: {
-      campaigns_id: id,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-    take,
-    skip,
-  });
+  const result = await prisma.$queryRaw<any[]>(Prisma.sql`
+  SELECT *, COUNT(*) OVER() AS rowCount
+  FROM news
+  WHERE campaigns_id = ${id}
+  ORDER BY created_at DESC
+  LIMIT ${take} OFFSET ${skip}
+`);
+
+  const rowCount = result.length > 0 ? Number(result[0].rowcount) : 0;
+
+  const data = result.map(({ rowcount, ...rest }) => rest);
+
+  return {
+    data,
+    rowCount,
+  };
 };
 
 const getFundDisbursement = async (id: number, page: number = 1) => {
   const skip = 10 * (page - 1);
   const take = 10;
 
-  return await prisma.fundDisbursementHistories.findMany({
-    where: {
-      campaigns_id: id,
-    },
-    orderBy: {
-      created_at: "desc",
-    },
-    take,
-    skip,
-  });
+  const result = await prisma.$queryRaw<any[]>(Prisma.sql`
+    SELECT *,
+      (SELECT COUNT(*) FROM fund_disbursement_histories WHERE campaigns_id = ${id}) AS rowCount
+    FROM fund_disbursement_histories
+    WHERE campaigns_id = ${id}
+    ORDER BY created_at DESC
+    LIMIT ${take} OFFSET ${skip}
+  `);
+
+  const rowCount = result.length > 0 ? Number(result[0].rowCount) : 0;
+  const data = result.map(({ rowCount, ...rest }) => rest);
+
+  return { data, rowCount };
 };
 
 const getHistoryDonation = async (id: number, page: number = 1) => {
   const skip = 10 * (page - 1);
   const take = 10;
 
-  return await prisma.donationHistory.findMany({
+  const data = await prisma.donationHistory.findMany({
     where: {
       campaigns_id: id,
     },
@@ -326,6 +335,14 @@ const getHistoryDonation = async (id: number, page: number = 1) => {
     take,
     skip,
   });
+
+  const rowCount = await prisma.donationHistory.count({
+    where: {
+      campaigns_id: id,
+    },
+  });
+
+  return { data, rowCount };
 };
 
 const toggleStatus = async (id: number, status: boolean) => {
@@ -335,6 +352,22 @@ const toggleStatus = async (id: number, status: boolean) => {
     },
     data: {
       is_active: !status,
+    },
+  });
+};
+
+const createNews = async (id: number, title: string, body: string) => {
+  return await prisma.campaign.update({
+    where: {
+      id,
+    },
+    data: {
+      news: {
+        create: {
+          title: title,
+          body: body,
+        },
+      },
     },
   });
 };
@@ -351,4 +384,5 @@ export default {
   getFundDisbursement,
   getHistoryDonation,
   toggleStatus,
+  createNews,
 };

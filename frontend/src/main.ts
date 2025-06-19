@@ -13,6 +13,7 @@ import { Quill } from "@vueup/vue-quill";
 import { serverURI } from "./utils/environment";
 import axios from "axios";
 import { register } from "swiper/element/bundle";
+import VueApexCharts from "vue3-apexcharts";
 
 register();
 
@@ -33,6 +34,7 @@ app.component("QuillEditor", QuillEditor);
 app.use(router);
 app.use(vueton);
 app.use(pinia);
+app.use(VueApexCharts);
 
 router.beforeEach(async (to, from, next) => {
   const walletAddress = sessionStorage.getItem("walletAddress");

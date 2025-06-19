@@ -67,17 +67,14 @@
 
               <div
                 class="mt-2 text-xs flex items-center text-gray-700"
-                v-if="
-                  campaignStore.currentCampaign.fund_disbursement_histories?.[0]
-                    ?.updated_at
-                "
+                v-if="campaignStore?.currentCampaign?.news?.[0]?.updated_at"
               >
-                <p>Terakhir pencairan dana</p>
+                <p>Terakhir update kabar terbaru</p>
                 <div class="w-1 h-1 bg-gray-700 mx-2 rounded-full"></div>
                 <p>
                   {{
                     new Date(
-                      campaignStore.currentCampaign.fund_disbursement_histories[0].updated_at
+                      campaignStore?.currentCampaign?.news?.[0]?.updated_at
                     ).toDateString()
                   }}
                 </p>
@@ -143,7 +140,7 @@
             <FormField v-slot="{ componentField }" name="amount">
               <FormItem>
                 <FormLabel class="text-sm font-medium text-gray-700"
-                  >Amount</FormLabel
+                  >Masukan Jumlah Donasi</FormLabel
                 >
                 <FormControl>
                   <div class="relative w-full">
@@ -281,6 +278,7 @@ const onSubmit = handleSubmit(async (values) => {
     }
 
     const amount = values.amount;
+    let response;
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
@@ -291,7 +289,7 @@ const onSubmit = handleSubmit(async (values) => {
 
         const contract = Address.parse(contractAddress!);
 
-        await sendTransaction({
+        response = await sendTransaction({
           to: contract,
           value: toNano(amount),
           bounce: true,
@@ -304,6 +302,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (success.value) {
       loading.value = true;
+      console.log(response);
       const lastTransactionlink = await getLastTransactionsLink(
         walletAddress,
         amount
@@ -366,6 +365,8 @@ onMounted(async () => {
   if (walletAddress !== "") {
     await getWalletBalance();
   }
+
+  console.log(campaignStore?.currentCampaign?.news?.[0]?.updated_at);
 });
 
 watch(
