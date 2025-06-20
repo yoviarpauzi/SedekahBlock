@@ -18,6 +18,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useRoute, useRouter } from "vue-router";
 import { serverURI } from "@/utils/environment";
 import showToast from "@/utils/showToast";
+import useNewsStore from "@/stores/news-store";
 
 const formSchema = toTypedSchema(
   z.object({
@@ -29,6 +30,7 @@ const formSchema = toTypedSchema(
 const route = useRoute();
 const router = useRouter();
 const campaignId = Number(route.params.id);
+const newsStore = useNewsStore();
 
 const { isFieldDirty, handleSubmit, setFieldValue, values } = useForm({
   validationSchema: formSchema,
@@ -37,17 +39,7 @@ const { isFieldDirty, handleSubmit, setFieldValue, values } = useForm({
 
 const createNews = handleSubmit(async (values, { resetForm }) => {
   try {
-    await axios.post(
-      `${serverURI}/api/campaigns/id/${campaignId}/news`,
-      {
-        title: values.title,
-        body: values.body,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-
+    await newsStore.addNews(campaignId, values.title, values.body);
     showToast("success", "success", "success create news");
     resetForm();
     router.push(`/admin/campaigns/details/${campaignId}`);

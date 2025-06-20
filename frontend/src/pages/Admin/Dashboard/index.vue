@@ -421,7 +421,6 @@ onMounted(async () => {
 
     const { data } = response.data;
     dashboardData.value = data;
-    console.log("Dashboard data:", dashboardData.value);
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
   }

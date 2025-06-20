@@ -13,9 +13,7 @@ const getLastTransactionsLink = async (
     );
 
     const data = res.data.result[0];
-    console.log(data);
     const transactionAmount = Number(data.out_msgs[0]?.value) / 1_000_000_000;
-    console.log(transactionAmount);
 
     if (transactionAmount === amount) {
       const transactionHash = parseBase64ToHex(data.transaction_id.hash);

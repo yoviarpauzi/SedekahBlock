@@ -39,7 +39,7 @@ import { ref } from "vue";
 import UpdateCategory from "./UpdateCategory.vue";
 import DeleteCategory from "./DeleteCategory.vue";
 
-defineProps<{
+const props = defineProps<{
   category: {
     id: number;
     name: string;

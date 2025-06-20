@@ -22,6 +22,7 @@ import DonationHistory from "@/pages/User/Campaign/DonationHistory.vue";
 import News from "@/pages/User/Campaign/News.vue";
 import FundDisbursement from "@/pages/User/Campaign/FundDisbursement.vue";
 import CreateNews from "@/pages/Admin/Campaign/CreateNews.vue";
+import UpdateNews from "@/pages/Admin/Campaign/UpdateNews.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -114,6 +115,13 @@ export const routes: RouteRecordRaw[] = [
           requireExistId: true,
         },
         component: CreateNews,
+      },
+      {
+        path: "campaigns/details/:id/news/:newsId/update",
+        meta: {
+          requireExistId: true,
+        },
+        component: UpdateNews,
       },
     ],
   },

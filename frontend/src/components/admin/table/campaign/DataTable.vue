@@ -303,6 +303,5 @@ watch(search, (newValue: string) => {
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
-  console.log(parseBase64ToHex("6Ugf5fiHosqGxiHbl3ffob9xDRnT77zzjHpEFaEEppk="));
 });
 </script>

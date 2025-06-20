@@ -85,8 +85,6 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
       monthly_donation: data.monthly_donations,
     };
 
-    console.log(result);
-
     res.status(200).json({
       message: "success retrieve data for dashboard",
       data: result,

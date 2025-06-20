@@ -27,13 +27,13 @@ export const columns: ColumnDef<News>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const campaign = row.original;
+      const news = row.original;
 
       return h(
         "div",
         { class: "relative" },
         h(DropdownAction, {
-          campaign,
+          news,
         })
       );
     },

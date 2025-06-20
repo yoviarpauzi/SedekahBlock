@@ -353,8 +353,6 @@ const getNews = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   const { data, rowCount } = await campaignService.getNews(paramsId, page);
-  console.log(data);
-  console.log(rowCount);
 
   res.status(200).json({
     message: "success retrieve news",
@@ -489,17 +487,138 @@ const createNews = async (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-const updateNews = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+const getNewsItem = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const newsId = Number(req.params.id);
 
-const deleteNews = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {};
+    const news = await prisma.news.findUnique({
+      where: {
+        id: newsId,
+      },
+    });
+
+    if (!news) {
+      throw new ResponseError(404, "news id not found");
+    }
+
+    res.status(200).json({
+      message: "success retrieve news",
+      news,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateNews = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const news = {
+      title: req.body.title,
+      body: req.body.body,
+    };
+    const newsId = Number(req.params.newsId);
+    const urlRegex: RegExp =
+      /https?:\/\/[^"' ]+\/campaigns\/news\/content\/([^"' ]+)/g;
+    const tempDir = path.resolve(__dirname, "./../temp/campaigns/news/content");
+    const storageDir = path.resolve(
+      __dirname,
+      "./../storage/campaigns/news/content"
+    );
+    const regex = /\/campaigns\/news\/content\/([^"' ]+)/g;
+
+    await moveImageFromTemp({
+      content: news.body,
+      urlRegex,
+      tempDir,
+      storageDir,
+      baseUrl: getBaseUrl(req),
+    });
+
+    const oldNews = await prisma.news.findUnique({
+      where: {
+        id: newsId,
+      },
+    });
+
+    if (news.body && news.body !== oldNews?.body) {
+      const oldImages = extractMatches({ content: oldNews?.body, regex });
+      const newImages = extractMatches({ content: news.body, regex });
+
+      const removedImages = oldImages.filter((img) => !newImages.includes(img));
+
+      removedImages.map(async (filename) => {
+        const filePath = path.resolve(
+          __dirname,
+          `../storage/campaigns/news/content/${filename}`
+        );
+        try {
+          await fs.unlink(filePath);
+        } catch (err) {
+          throw err;
+        }
+      });
+
+      news.body = news.body;
+    } else {
+      news.body = oldNews?.body;
+    }
+
+    const campaign: any = await campaignService.updateNews(
+      newsId,
+      news.title,
+      news.body
+    );
+
+    res.status(200).json({
+      message: "success update data",
+      data: campaign,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteNews = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const newsId = Number(req.params.id);
+    const regex = /\/campaigns\/news\/content\/([^"' ]+)/g;
+
+    const news = await prisma.news.findUnique({
+      where: {
+        id: newsId,
+      },
+    });
+
+    if (!news) {
+      throw new ResponseError(404, "news id not found");
+    }
+
+    const imageFilenames = extractMatches({
+      content: news.body,
+      regex,
+    });
+
+    imageFilenames.map(async (filename) => {
+      const imagePath = path.resolve(
+        __dirname,
+        `../storage/campaigns/news/content/${filename}`
+      );
+      try {
+        await fs.unlink(imagePath);
+      } catch (err) {
+        throw err;
+      }
+    });
+
+    await campaignService.deleteNews(newsId);
+
+    res.status(200).json({
+      message: "success delete news",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const uploadWithdrawImage = async (
   req: Request,
@@ -553,6 +672,7 @@ export default {
   updateBalanceAndCollected,
   toggleStatus,
   getNews,
+  getNewsItem,
   getFundDisbursement,
   getHistories,
   uploadNewsImage,

@@ -218,19 +218,32 @@ const updateBalanceAndCollected = async (
       throw new ResponseError(404, "campaign id not found");
     }
 
-    const isEligible = campaign.collected.greaterThanOrEqualTo(1);
+    // Hitung collected yang baru dulu
+    const updateCollected: Decimal = campaign.collected.plus(
+      new Decimal(amount)
+    );
 
-    const updateCollected = campaign.collected.plus(new Decimal(amount));
-    const updateBalance = isEligible
-      ? campaign.collected.div(0.95).minus(campaign.total_withdraw_amount)
+    const isEligible = updateCollected.greaterThanOrEqualTo(1);
+
+    const updateBalance: Decimal = isEligible
+      ? updateCollected.mul(0.95).minus(campaign.total_withdraw_amount)
       : campaign.balance.plus(new Decimal(amount));
-    const updateOperationalCosts = isEligible
-      ? campaign.collected.div(0.05)
-      : new Decimal(0);
-    const currentDonorAmount = campaign.donors[0]?.amount ?? new Decimal(0);
-    const updateDonorAmount = currentDonorAmount.plus(new Decimal(amount));
 
-    await prisma.campaign.update({
+    const updateOperationalCosts: Decimal = isEligible
+      ? updateCollected.mul(0.05)
+      : campaign.operational_costs;
+
+    const currentDonorAmount: Decimal =
+      campaign.donors[0]?.amount ?? new Decimal(0);
+    const updateDonorAmount: Decimal = currentDonorAmount.plus(
+      new Decimal(amount)
+    );
+
+    if (updateBalance.lessThan(0)) {
+      throw new ResponseError(400, "Balance cannot be negative");
+    }
+
+    return await prisma.campaign.update({
       where: {
         id: id,
       },
@@ -372,6 +385,26 @@ const createNews = async (id: number, title: string, body: string) => {
   });
 };
 
+const updateNews = async (id: number, title: string, body: string) => {
+  return await prisma.news.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      body,
+    },
+  });
+};
+
+const deleteNews = async (id: number) => {
+  return await prisma.news.delete({
+    where: {
+      id,
+    },
+  });
+};
+
 export default {
   create,
   update,
@@ -385,4 +418,6 @@ export default {
   getHistoryDonation,
   toggleStatus,
   createNews,
+  updateNews,
+  deleteNews,
 };

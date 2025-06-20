@@ -4,6 +4,8 @@ import adminMiddleware from "../middleware/admin-auth";
 import authMiddleware from "../middleware/auth-middleware";
 import createMulterUploader from "../utils/createMulterUploader";
 
+const router = express.Router();
+
 const uploadCampaignThumbnail = createMulterUploader(
   "./../storage/campaigns/thumbnail"
 );
@@ -15,8 +17,6 @@ const uploadCampaignContent = createMulterUploader(
 const uploadNewsContent = createMulterUploader(
   "./../temp/campaigns/news/content"
 );
-
-const router = express.Router();
 
 router.post(
   "/api/campaigns",
@@ -61,6 +61,12 @@ router.get("/api/campaigns", campaignController.getCampaigns);
 router.get("/api/campaigns/id/:id/news", campaignController.getNews);
 
 router.get(
+  "/api/campaigns/news/id/:id",
+  adminMiddleware,
+  campaignController.getNewsItem
+);
+
+router.get(
   "/api/campaigns/id/:id/fundDisbursement",
   campaignController.getFundDisbursement
 );
@@ -82,13 +88,13 @@ router.post(
 );
 
 router.put(
-  "/api/campaigns/id/:id/news/id/:newsId",
+  "/api/campaigns/news/id/:newsId",
   adminMiddleware,
   campaignController.updateNews
 );
 
 router.delete(
-  "/api/campaigns/id/:id/news/id/:newsId",
+  "/api/campaigns/news/id/:id",
   adminMiddleware,
   campaignController.deleteNews
 );

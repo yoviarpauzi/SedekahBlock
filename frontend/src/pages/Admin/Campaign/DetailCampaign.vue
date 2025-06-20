@@ -4,6 +4,7 @@
       <Button>Update</Button>
     </RouterLink>
     <Button variant="destructive" @click="openDeleteDialog">Delete</Button>
+    <Button variant="success">Transfer</Button>
     <Button
       :variant="
         campaignStore.currentCampaign.is_active ? 'destructive' : 'success'
@@ -28,7 +29,7 @@
   <!-- Withdraw -->
   <div class="p-4 bg-white shadow-sm border rounded-md campaign_story relative">
     <p class="text-lg font-semibold">Pencairan Dana</p>
-    <div class="flex justify-end my-2">
+    <div class="flex justify-end my-2 gap-x-4">
       <Button variant="success">Withdraw</Button>
     </div>
 

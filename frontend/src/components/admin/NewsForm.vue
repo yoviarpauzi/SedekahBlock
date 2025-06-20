@@ -7,11 +7,7 @@
     >
       <FormItem>
         <FormLabel for="title"
-          >Title<span
-            v-show="route.path.includes('/create')"
-            class="text-red-400"
-            >*</span
-          ></FormLabel
+          >Title<span class="text-red-400">*</span></FormLabel
         >
         <FormControl>
           <Input

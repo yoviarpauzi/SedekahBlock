@@ -302,7 +302,6 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (success.value) {
       loading.value = true;
-      console.log(response);
       const lastTransactionlink = await getLastTransactionsLink(
         walletAddress,
         amount
@@ -365,8 +364,6 @@ onMounted(async () => {
   if (walletAddress !== "") {
     await getWalletBalance();
   }
-
-  console.log(campaignStore?.currentCampaign?.news?.[0]?.updated_at);
 });
 
 watch(
@@ -396,6 +393,7 @@ watch(
 }
 
 .no-spinner {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 </style>

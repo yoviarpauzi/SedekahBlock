@@ -15,9 +15,7 @@
     <div class="mt-4 px-4">
       <div class="mb-2">
         <p class="text-xs text-gray-600">Donasi Tersedia</p>
-        <p class="font-bold text-green-800">
-          {{ availableDonation(campaign.balance) }} TON
-        </p>
+        <p class="font-bold text-green-800">{{ campaign.balance }} TON</p>
       </div>
 
       <p class="text-xs text-gray-600">Donasi Terkumpul</p>
@@ -25,7 +23,7 @@
       <div class="flex items-center justify-between">
         <p class="mt-1 text-base text-gray-700">
           <span class="font-bold text-green-600">
-            {{ campaign.collected }} TON
+            {{ Number(campaign.collected).toFixed(2) }} TON
           </span>
           <span class="text-sm font-medium text-gray-600"> dari target </span>
           <span class="font-semibold"> {{ campaign.target }} TON </span>
