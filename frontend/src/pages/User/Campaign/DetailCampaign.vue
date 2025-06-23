@@ -1,6 +1,6 @@
 <template>
   <div class="container pt-20">
-    <div class="grid lg:grid-cols-3 lg:gap-x-4">
+    <div class="grid gap-y-4 lg:grid-cols-3 lg:gap-x-4">
       <!-- left -->
       <div class="lg:col-span-1">
         <CampaignProfileCard :campaign="campaignStore.currentCampaign" />
@@ -278,7 +278,7 @@ const onSubmit = handleSubmit(async (values) => {
     }
 
     const amount = values.amount;
-    let response;
+    let response: any;
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
@@ -303,8 +303,8 @@ const onSubmit = handleSubmit(async (values) => {
     if (success.value) {
       loading.value = true;
       const lastTransactionlink = await getLastTransactionsLink(
-        walletAddress,
-        amount
+        response.boc,
+        walletAddress
       );
 
       await campaignStore
@@ -317,7 +317,7 @@ const onSubmit = handleSubmit(async (values) => {
         });
 
       showToast("success", "success", "success donation");
-      balance.value = (Number(balance.value) - amount).toFixed(2);
+      await getWalletBalance();
       resetForm();
     }
 

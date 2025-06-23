@@ -64,6 +64,38 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  if (to.meta.requireNewsExistId) {
+    const id = Number(to.params.newsId);
+
+    if (isNaN(id)) {
+      return next("/error/404");
+    }
+
+    try {
+      await axios.get(`${serverURI}/api/campaigns/news/id/${id}`, {
+        withCredentials: true,
+      });
+    } catch (err) {
+      return next("/error/404");
+    }
+  }
+
+  if (to.meta.requireWithdrawExistId) {
+    const id = Number(to.params.withdrawId);
+
+    if (isNaN(id)) {
+      return next("/error/404");
+    }
+
+    try {
+      await axios.get(`${serverURI}/api/campaigns/withdraw/id/${id}`, {
+        withCredentials: true,
+      });
+    } catch (err) {
+      return next("/error/404");
+    }
+  }
+
   next();
 });
 

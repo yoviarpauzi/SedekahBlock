@@ -39,10 +39,18 @@ export const columns: ColumnDef<Campaign>[] = [
   {
     accessorKey: "balance",
     header: () => "Balance",
+    cell: ({ row }) => {
+      const formatted: string = row.getValue("balance") + " TON";
+      return h("div", { class: "text-left " }, formatted);
+    },
   },
   {
     accessorKey: "collected",
     header: () => "Collected",
+    cell: ({ row }) => {
+      const formatted: string = row.getValue("collected") + " TON";
+      return h("div", { class: "text-left " }, formatted);
+    },
   },
   {
     accessorKey: "target",

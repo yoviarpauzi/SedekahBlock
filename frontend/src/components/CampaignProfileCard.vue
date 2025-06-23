@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white shadow-sm pb-4 mb-4 border rounded-md">
+  <div class="bg-white shadow-sm pb-4 border rounded-md">
     <div class="w-full h-52">
       <img
         :src="`${serverURI}/${campaign.thumbnail}`"

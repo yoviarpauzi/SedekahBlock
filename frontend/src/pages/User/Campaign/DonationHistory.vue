@@ -16,9 +16,7 @@
             ></path>
           </svg>
         </div>
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-          Riwayat Donasi
-        </h1>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Riwayat Donasi</h1>
         <p class="text-gray-600 max-w-md mx-auto">
           Daftar orang baik yang telah berdonasi untuk kampanye ini
         </p>
@@ -112,28 +110,34 @@
         </p>
       </div>
 
-      <!-- Statistics Summary -->
-      <div v-if="histories.length > 0" class="mt-8 bg-green-50 rounded-lg p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div>
-            <div class="text-2xl font-bold text-green-600 mb-1">
-              {{ rowCount }}
-            </div>
-            <div class="text-sm text-gray-600">Total Donasi</div>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-green-600 mb-1">
-              {{ totalAmount.toFixed(2) }}
-            </div>
-            <div class="text-sm text-gray-600">Total TON Terkumpul</div>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-green-600 mb-1">
-              {{ averageAmount.toFixed(2) }}
-            </div>
-            <div class="text-sm text-gray-600">Rata-rata Donasi</div>
-          </div>
-        </div>
+      <!-- Pagination -->
+      <div v-if="histories.length > 0" class="mt-8">
+        <Pagination
+          v-slot="{ page }"
+          :items-per-page="10"
+          :total="rowCount"
+          :default-page="1"
+          :page="currentPage"
+          @update:page="updatePage"
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious />
+
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem
+                v-if="item.type === 'page'"
+                :value="item.value"
+                :is-active="item.value === page"
+              >
+                {{ item.value }}
+              </PaginationItem>
+            </template>
+
+            <PaginationEllipsis :index="4" />
+
+            <PaginationNext />
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   </div>
@@ -143,7 +147,16 @@
 import { serverURI } from "@/utils/environment";
 import axios from "axios";
 import { useRoute } from "vue-router";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, watch } from "vue";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import router from "@/router";
 
 interface History {
   id: number;
@@ -163,20 +176,8 @@ const route = useRoute();
 const queryId = Number(route.params.id);
 const histories = ref<History[]>([]);
 const rowCount = ref(0);
-
-// Computed properties for statistics
-const totalAmount = computed(() => {
-  return histories.value.reduce(
-    (sum, history) => sum + parseFloat(history.amount),
-    0
-  );
-});
-
-const averageAmount = computed(() => {
-  return histories.value.length > 0
-    ? totalAmount.value / histories.value.length
-    : 0;
-});
+const queryPage = route.query.page ?? "1";
+const currentPage = ref(Number(queryPage));
 
 const dateFormat = (date: string): string => {
   const now = new Date();
@@ -204,6 +205,11 @@ const dateFormat = (date: string): string => {
   }
 };
 
+const updatePage = (page: number) => {
+  router.push({ query: { ...route.query, page } });
+  currentPage.value = page;
+};
+
 onMounted(async () => {
   try {
     const response = await axios.get(
@@ -216,4 +222,16 @@ onMounted(async () => {
     console.error("Error fetching donation history:", error);
   }
 });
+
+watch(
+  () => currentPage.value,
+  async (page) => {
+    const response = await axios.get(
+      `${serverURI}/api/campaigns/id/${queryId}/histories?page=${page}`
+    );
+
+    histories.value = response.data.histories;
+    rowCount.value = response.data.rowCount;
+  }
+);
 </script>

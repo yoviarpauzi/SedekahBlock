@@ -1,5 +1,5 @@
-import { serverURI } from "@/utils/environment";
 import axios from "axios";
+import { serverURI } from "@/utils/environment";
 import { defineStore } from "pinia";
 
 interface News {
@@ -84,16 +84,21 @@ const useNewsStore = defineStore("news", {
 
     async updateNews(newsId: number, title: string, body: string) {
       try {
-        await axios.put(
-          `${serverURI}/api/campaigns/news/id/${newsId}`,
-          {
-            title: title,
-            body: body,
-          },
-          {
-            withCredentials: true,
-          }
-        );
+        this.isLoading = true;
+        await axios
+          .put(
+            `${serverURI}/api/campaigns/news/id/${newsId}`,
+            {
+              title: title,
+              body: body,
+            },
+            {
+              withCredentials: true,
+            }
+          )
+          .finally(() => {
+            this.isLoading = false;
+          });
       } catch (err) {
         throw err;
       }

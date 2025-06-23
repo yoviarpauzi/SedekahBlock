@@ -13,6 +13,8 @@ interface Campaign {
   end_at: Date;
   thumbnail: string | File;
   story: string;
+  operational_costs: number;
+  is_admin_withdraw: boolean;
   fund_disbursement_histories?: [{ updated_at: Date }];
   news?: [{ updated_at: Date }];
   _count?: {

@@ -174,9 +174,9 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div class="mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-1">
-          Jumlah Donatur Bulanan
+          Jumlah Donasi Bulanan
         </h3>
-        <p class="text-sm text-gray-600">Jumlah donatur per bulan</p>
+        <p class="text-sm text-gray-600">Jumlah donasi per bulan</p>
       </div>
       <apexchart
         height="350"
@@ -225,7 +225,7 @@ const donationCountSeries = computed(() => {
   if (!dashboardData.value.monthly_donation?.length) return [];
   return [
     {
-      name: "Jumlah Donatur",
+      name: "Jumlah Donasi",
       data: dashboardData.value.monthly_donation.map(
         (item) => item.donation_count
       ),
@@ -407,7 +407,7 @@ const donationCountOptions = computed(() => ({
   tooltip: {
     y: {
       formatter: function (val: number) {
-        return val + " donatur";
+        return val + " donasi";
       },
     },
   },

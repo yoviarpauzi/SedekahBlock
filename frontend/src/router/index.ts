@@ -23,6 +23,8 @@ import News from "@/pages/User/Campaign/News.vue";
 import FundDisbursement from "@/pages/User/Campaign/FundDisbursement.vue";
 import CreateNews from "@/pages/Admin/Campaign/CreateNews.vue";
 import UpdateNews from "@/pages/Admin/Campaign/UpdateNews.vue";
+import CreateWithdraw from "@/pages/Admin/Campaign/CreateWithdraw.vue";
+import UpdateWithdraw from "@/pages/Admin/Campaign/UpdateWithdraw.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -120,8 +122,24 @@ export const routes: RouteRecordRaw[] = [
         path: "campaigns/details/:id/news/:newsId/update",
         meta: {
           requireExistId: true,
+          requireNewsExistId: true,
         },
         component: UpdateNews,
+      },
+      {
+        path: "campaigns/details/:id/withdraw/create",
+        meta: {
+          requireExistId: true,
+        },
+        component: CreateWithdraw,
+      },
+      {
+        path: "campaigns/details/:id/withdraw/:withdrawId/update",
+        meta: {
+          requireExistId: true,
+          requireWithdrawExistId: true,
+        },
+        component: UpdateWithdraw,
       },
     ],
   },

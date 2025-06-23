@@ -13,10 +13,8 @@
 import NewsForm from "@/components/admin/NewsForm.vue";
 import z from "zod";
 import { useForm } from "vee-validate";
-import axios from "axios";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useRoute, useRouter } from "vue-router";
-import { serverURI } from "@/utils/environment";
 import showToast from "@/utils/showToast";
 import useNewsStore from "@/stores/news-store";
 

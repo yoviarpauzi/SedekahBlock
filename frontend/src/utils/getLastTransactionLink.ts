@@ -1,29 +1,65 @@
-import axios from "axios";
-import parseBase64ToHex from "./parseBase64ToHex";
+import { Cell, Address, beginCell, storeMessage, TonClient } from "@ton/ton";
 
-const getLastTransactionsLink = async (
-  userAddress: string,
-  amount: number,
-  retries = 15,
-  delay = 1000
-): Promise<string> => {
-  for (let i = 0; i < retries; i++) {
-    const res = await axios.get(
-      `https://testnet.toncenter.com/api/v2/getTransactions?address=${userAddress}&limit=1`
-    );
+const client = new TonClient({
+  endpoint: "https://testnet.toncenter.com/api/v2/jsonRPC",
+  apiKey: "c35b86555f402afdc7d39c2dc66bf5bf52df543a9cd66c2346b0efe1732e07ca",
+});
 
-    const data = res.data.result[0];
-    const transactionAmount = Number(data.out_msgs[0]?.value) / 1_000_000_000;
+async function retry(
+  fn: () => Promise<any>,
+  options: { retries: number; delay: number }
+) {
+  const { retries = 3, delay = 1500 } = options;
 
-    if (transactionAmount === amount) {
-      const transactionHash = parseBase64ToHex(data.transaction_id.hash);
-      return `https://testnet.tonviewer.com/transaction/${transactionHash}`;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === retries) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
-
-    await new Promise((resolve) => setTimeout(resolve, delay));
   }
+}
 
-  throw new Error("Transaksi dengan jumlah yang sesuai tidak ditemukan.");
-};
+export async function getLastTransactionsLink(
+  exBoc: string,
+  walletAddress: string
+) {
+  const myAddress = Address.parse(walletAddress);
+
+  return retry(
+    async () => {
+      const transactions = await client.getTransactions(myAddress, {
+        limit: 5,
+      });
+
+      for (const tx of transactions) {
+        const inMsg = tx.inMessage;
+        if (inMsg?.info.type === "external-in") {
+          const inBOC = inMsg?.body;
+          if (typeof inBOC === "undefined") {
+            continue;
+          }
+
+          const extHash = Cell.fromBase64(exBoc).hash().toString("hex");
+          const inHash = beginCell()
+            .store(storeMessage(inMsg))
+            .endCell()
+            .hash()
+            .toString("hex");
+
+          if (extHash === inHash) {
+            const txHash = tx.hash().toString("hex");
+            return `https://testnet.tonviewer.com/transaction/${txHash}`;
+          }
+        }
+      }
+      throw new Error("Transaction not found");
+    },
+    { retries: 30, delay: 1500 }
+  );
+}
 
 export default getLastTransactionsLink;

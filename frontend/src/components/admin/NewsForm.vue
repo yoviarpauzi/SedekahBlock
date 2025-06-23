@@ -62,7 +62,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input/Input.vue";
-import { useRoute } from "vue-router";
 import { QuillEditor } from "@vueup/vue-quill";
 
 const props = defineProps<{
@@ -72,8 +71,6 @@ const props = defineProps<{
   action: string;
   isFieldDirty: Function;
 }>();
-
-const route = useRoute();
 
 const toolbarOptions = [
   { header: [1, 2, 3, false] },

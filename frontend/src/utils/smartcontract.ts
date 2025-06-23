@@ -2,7 +2,10 @@ import tonWeb from "tonweb";
 import { contractAddress } from "./environment";
 
 const provider = new tonWeb.HttpProvider(
-  "https://testnet.toncenter.com/api/v2/jsonRPC"
+  "https://testnet.toncenter.com/api/v2/jsonRPC",
+  {
+    apiKey: "c35b86555f402afdc7d39c2dc66bf5bf52df543a9cd66c2346b0efe1732e07ca",
+  }
 );
 
 const contract = new tonWeb.Contract(provider, {
