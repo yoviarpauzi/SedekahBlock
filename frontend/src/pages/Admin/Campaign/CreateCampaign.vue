@@ -113,7 +113,7 @@ const createCampaign = handleSubmit(async (values) => {
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
-          .storeUint(0x9971f0f9, 32)
+          .storeUint(2574381305, 32)
           .storeUint(campaign.id, 32)
           .endCell();
 

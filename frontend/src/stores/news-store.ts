@@ -43,6 +43,8 @@ const useNewsStore = defineStore("news", {
         this.setNews(news, rowCount);
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -60,6 +62,8 @@ const useNewsStore = defineStore("news", {
         this.currentNews = response.data.news;
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -79,6 +83,8 @@ const useNewsStore = defineStore("news", {
         );
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -101,6 +107,8 @@ const useNewsStore = defineStore("news", {
           });
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -121,6 +129,8 @@ const useNewsStore = defineStore("news", {
         ]);
       } catch (err) {
         throw err;
+      } finally {
+        this.isLoading = false;
       }
     },
   },

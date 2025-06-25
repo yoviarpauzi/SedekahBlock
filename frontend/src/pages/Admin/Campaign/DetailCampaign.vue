@@ -1,6 +1,6 @@
 <template>
   <div class="space-x-4">
-    <RouterLink :to="`/admin/campaigns/edit/${queryId}`">
+    <RouterLink :to="`/admin/campaigns/edit/${campaignId}`">
       <Button>Update</Button>
     </RouterLink>
     <Button variant="destructive" @click="openDeleteDialog">Delete</Button>
@@ -40,7 +40,9 @@
   <div class="p-4 bg-white shadow-sm border rounded-md campaign_story relative">
     <p class="text-lg font-semibold">Pencairan Dana</p>
     <div class="flex justify-end my-4 gap-x-4">
-      <RouterLink :to="`/admin/campaigns/details/${queryId}/withdraw/create`">
+      <RouterLink
+        :to="`/admin/campaigns/details/${campaignId}/withdraw/create`"
+      >
         <Button variant="success">Make Withdraw</Button>
       </RouterLink>
     </div>
@@ -54,7 +56,7 @@
   <div class="p-4 bg-white shadow-sm border rounded-md campaign_story relative">
     <p class="text-lg font-semibold">Kabar Terbaru</p>
     <div class="flex justify-end my-4">
-      <RouterLink :to="`/admin/campaigns/details/${queryId}/news/create`">
+      <RouterLink :to="`/admin/campaigns/details/${campaignId}/news/create`">
         <Button variant="success">Add News</Button>
       </RouterLink>
     </div>
@@ -68,13 +70,15 @@
   <div class="p-4 bg-white shadow-sm border rounded-md campaign_story relative">
     <p class="text-lg font-semibold">Transfer</p>
     <div class="flex justify-end my-4">
-      <RouterLink :to="`/admin/campaigns/details/${queryId}/news/create`">
+      <RouterLink
+        :to="`/admin/campaigns/details/${campaignId}/transfer/create`"
+      >
         <Button variant="success">Make Transfer</Button>
       </RouterLink>
     </div>
 
     <div>
-      <NewsTable />
+      <TransferTable />
     </div>
   </div>
 
@@ -96,9 +100,14 @@ import { serverURI } from "@/utils/environment";
 import showToast from "@/utils/showToast";
 import NewsTable from "./NewsTable.vue";
 import WithdrawTable from "./WithdrawTable.vue";
+import { useTonConnect, useSendMessage } from "@d0rich/vueton";
+import { contractAddress } from "@/utils/environment";
+import { Address, toNano, beginCell } from "@ton/core";
+import TransferTable from "./TransferTable.vue";
 
+const { sendTransaction } = useTonConnect();
 const route = useRoute();
-const queryId = Number(route.params.id);
+const campaignId = Number(route.params.id);
 const campaignStore = useCampaignStore();
 const isDeleteOpen = ref(false);
 
@@ -108,9 +117,9 @@ const openDeleteDialog = () => {
 
 const deactivateCampaign = async () => {
   try {
-    await axios.patch(`${serverURI}/api/campaigns/id/${queryId}/status`);
+    await axios.patch(`${serverURI}/api/campaigns/id/${campaignId}/status`);
     showToast("success", "success", "success change campaign status");
-    await campaignStore.getCampaign(queryId);
+    await campaignStore.getCampaign(campaignId);
   } catch (err: any) {
     showToast("error", "error", err.message);
   }
@@ -118,14 +127,45 @@ const deactivateCampaign = async () => {
 
 const adminWithdraw = async () => {
   try {
-    
+    const { sendMessage, success, fail } = useSendMessage({
+      sendMessageFn: async () => {
+        const messageCell = beginCell()
+          .storeUint(0xb35c477b, 32)
+          .storeUint(campaignId, 32)
+          .storeUint(
+            toNano(campaignStore.currentCampaign.operational_costs),
+            256
+          )
+          .endCell();
+
+        const contract = Address.parse(contractAddress!);
+
+        await sendTransaction({
+          to: contract,
+          value: toNano(0.05),
+          bounce: true,
+          body: messageCell,
+        });
+      },
+    });
+
+    await sendMessage();
+
+    if (success.value) {
+      await campaignStore.withdrawOperational(campaignId);
+      showToast("success", "success", "success admin withdraw");
+    }
+
+    if (fail.value) {
+      showToast("error", "error", "failed admin withdraw");
+    }
   } catch (err) {
     showToast("error", "error", "failed admin withdraw");
   }
 };
 
 onMounted(async () => {
-  await campaignStore.getCampaign(queryId);
+  await campaignStore.getCampaign(campaignId);
 });
 </script>
 

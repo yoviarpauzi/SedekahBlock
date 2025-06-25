@@ -60,7 +60,7 @@ const deleteCampaign = async () => {
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
-          .storeUint(0x9b6ac5de, 32)
+          .storeUint(2607465950, 32)
           .storeUint(props.campaign.id!, 32)
           .endCell();
 

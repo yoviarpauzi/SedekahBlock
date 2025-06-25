@@ -88,7 +88,7 @@ import { useRoute } from "vue-router";
 import useNewsStore from "@/stores/news-store";
 
 const route = useRoute();
-const campaignId = route.params.id;
+const campaignId = Number(route.params.id);
 const newsStore = useNewsStore();
 
 const props = defineProps<{
@@ -118,6 +118,6 @@ const table = useVueTable({
 });
 
 onMounted(async () => {
-  newsStore.getNews(Number(campaignId));
+  await newsStore.getNews(campaignId);
 });
 </script>

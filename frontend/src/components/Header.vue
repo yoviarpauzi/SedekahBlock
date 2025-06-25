@@ -56,7 +56,13 @@
               <DropdownMenuTrigger as-child>
                 <Avatar class="w-8 h-8 cursor-pointer">
                   <AvatarImage
-                    :src="user.profile_picture ?? 'ID'"
+                    :src="
+                      user.profile_picture
+                        ? user.profile_picture.includes('ui-avatars.com')
+                          ? user.profile_picture
+                          : `${serverURI}/${user.profile_picture}`
+                        : 'https://ui-avatars.com/api/?name=ID'
+                    "
                     class="w-8 h-8"
                   />
                   <AvatarFallback> ID </AvatarFallback>
@@ -88,7 +94,9 @@
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem> Account </DropdownMenuItem>
+                  <RouterLink to="/account">
+                    <DropdownMenuItem> Account </DropdownMenuItem>
+                  </RouterLink>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem @click.prevent="disconnectWallet">
@@ -171,6 +179,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useUserStore from "@/stores/auth-store";
 import showToast from "@/utils/showToast";
+import { serverURI } from "@/utils/environment";
 
 const route = useRoute();
 const header = ref<HTMLElement | null>(null);

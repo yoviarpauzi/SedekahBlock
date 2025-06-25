@@ -12,7 +12,7 @@ const create = async (wallet_address: string) => {
   }
 };
 
-const update = async (id: number, name: string) => {
+const update = async (id: number, name: string, file: string) => {
   try {
     const isUserExist = await getUserById(id);
 
@@ -23,6 +23,7 @@ const update = async (id: number, name: string) => {
         },
         data: {
           name: name,
+          profile_picture: file,
         },
       });
     }

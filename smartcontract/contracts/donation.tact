@@ -29,19 +29,17 @@ message DeleteCampaign {
     id: Int as uint32;
 }
 
-contract Donation with Ownable {
-    owner: Address;
-    campaigns: map<Int as uint23, Campaign>;
-    numOfCampaign: Int as uint32;
-
-    init(owner: Address) {
-        self.owner = owner;
-        self.campaigns = emptyMap();
-        self.numOfCampaign = 0;
-    }
-
+contract Donation(
+    owner: Address, 
+    campaigns: map<Int as uint32, Campaign>,
+    numOfCampaign: Int as uint32 
+) with Ownable{
+    // Empty receiver for the deployment,
+    // which expects the `null` message body
     receive() {
-        cashback(sender())
+        // Forward the remaining value in the
+        // incoming message back to the sender
+        cashback(sender());
     }
 
     get fun isCampaignExist(id: Int): Bool{
@@ -58,6 +56,7 @@ contract Donation with Ownable {
         return self.numOfCampaign;
     }
 
+    
     receive(msg: CreateCampaign) {
         self.requireOwner();
         throwUnless(134, !self.campaigns.exists(msg.id));
@@ -93,6 +92,8 @@ contract Donation with Ownable {
         
         let campaign = self.campaigns.get(msg.id);
 
+        throwUnless(37, campaign!!.balance >= msg.amount);
+
         self.campaigns.set(msg.id, Campaign {
             id: msg.id,
             balance: campaign!!.balance - msg.amount
@@ -116,7 +117,7 @@ contract Donation with Ownable {
         let toCampaign = self.campaigns.get(msg.toId);
 
         throwUnless(37, balance > msg.amount);
-        throwUnless(37, campaign!!.balance > msg.amount);
+        throwUnless(37, campaign!!.balance >= msg.amount);
 
         self.campaigns.set(msg.id, Campaign {
             id: msg.id,

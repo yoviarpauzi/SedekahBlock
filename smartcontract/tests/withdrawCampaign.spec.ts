@@ -1,17 +1,32 @@
-import { SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { toNano } from '@ton/core';
-import { CreateCampaign, Donation, ReceiveDonation, WithdrawCampaign } from '../wrappers/Donation';
+import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
+import { Address, Dictionary, toNano } from '@ton/core';
 import '@ton/test-utils';
-import { setup } from './setupDonation';
+import { CreateCampaign, Donation, ReceiveDonation, WithdrawCampaign } from '../build/Donation/Donation_Donation';
 
 describe('Donation: Withdraw Campaign', () => {
+    let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;
     let donation: SandboxContract<Donation>;
 
     beforeEach(async () => {
-        const shared = await setup();
-        donation = shared.donation;
-        deployer = shared.deployer;
+        blockchain = await Blockchain.create();
+        deployer = await blockchain.treasury('deployer');
+        donation = blockchain.openContract(await Donation.fromInit(deployer.address, Dictionary.empty(), 0n));
+
+        const deployResult = await donation.send(
+            deployer.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            null,
+        );
+
+        expect(deployResult.transactions).toHaveTransaction({
+            from: deployer.address,
+            to: donation.address,
+            deploy: true,
+            success: true,
+        });
     });
 
     const createCampaign = async (id: bigint) => {

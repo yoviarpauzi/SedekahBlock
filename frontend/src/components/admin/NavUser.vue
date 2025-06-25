@@ -9,7 +9,13 @@
           >
             <Avatar class="h-8 w-8 rounded-lg">
               <AvatarImage
-                :src="user.profile_picture ?? 'cn'"
+                :src="
+                  user.profile_picture
+                    ? user.profile_picture.includes('ui-avatars.com')
+                      ? user.profile_picture
+                      : `${serverURI}/${user.profile_picture}`
+                    : 'https://ui-avatars.com/api/?name=ID'
+                "
                 :alt="user.name"
               />
               <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
@@ -31,7 +37,13 @@
             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
               <Avatar class="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  :src="user.profile_picture ?? 'CN'"
+                  :src="
+                    user.profile_picture
+                      ? user.profile_picture.includes('ui-avatars.com')
+                        ? user.profile_picture
+                        : `${serverURI}/${user.profile_picture}`
+                      : 'https://ui-avatars.com/api/?name=ID'
+                  "
                   :alt="user.name"
                 />
                 <AvatarFallback class="rounded-lg"> CN </AvatarFallback>
@@ -44,10 +56,12 @@
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <BadgeCheck />
-              Account
-            </DropdownMenuItem>
+            <RouterLink to="/admin/account">
+              <DropdownMenuItem>
+                <BadgeCheck />
+                Account
+              </DropdownMenuItem>
+            </RouterLink>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem @click="logOut">
@@ -80,8 +94,9 @@ import {
 } from "@/components/ui/sidebar";
 import useAuthStore from "@/stores/auth-store";
 import { useTonConnect } from "@d0rich/vueton";
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-vue-next";
+import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-vue-next";
 import { useRouter } from "vue-router";
+import { serverURI } from "@/utils/environment";
 
 const user = useAuthStore();
 const { tonConnect } = useTonConnect();

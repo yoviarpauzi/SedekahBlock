@@ -23,6 +23,7 @@ const create = async (
     data: {
       balance: decreaseBalance,
       is_withdraw: true,
+      total_withdraw_amount: campaign?.total_withdraw_amount.plus(amount),
       fund_disbursement_histories: {
         create: {
           amount: amount,

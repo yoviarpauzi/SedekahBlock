@@ -328,6 +328,35 @@ const toggleStatus = async (id: number, status: boolean) => {
   });
 };
 
+const withdrawOperational = async (id: number) => {
+  return await prisma.campaign.update({
+    where: {
+      id,
+    },
+    data: {
+      is_admin_withdraw: true,
+    },
+  });
+};
+
+const getAllActiveCampaign = async () => {
+  return await prisma.campaign.findMany({
+    where: {
+      is_active: true,
+      end_at: {
+        gt: new Date(),
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+    orderBy: {
+      title: "asc",
+    },
+  });
+};
+
 export default {
   create,
   update,
@@ -338,4 +367,6 @@ export default {
   updateBalanceAndCollected,
   getHistoryDonation,
   toggleStatus,
+  withdrawOperational,
+  getAllActiveCampaign,
 };

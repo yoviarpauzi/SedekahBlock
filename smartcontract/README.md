@@ -1,4 +1,4 @@
-# Donation Smart Contract
+# donationSmartcontract
 
 ## Project structure
 

@@ -72,7 +72,7 @@ const createWithdraw = handleSubmit(async (values) => {
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
-          .storeUint(0xb35c477b, 32)
+          .storeUint(3009169275, 32)
           .storeUint(campaignId, 32)
           .storeUint(toNano(values.amount), 256)
           .endCell();

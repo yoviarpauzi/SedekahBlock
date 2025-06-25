@@ -7,6 +7,7 @@ import campaignRouter from "./campaign-router";
 import homeRouter from "./home-router";
 import newsRouter from "./news-router";
 import withdrawRouter from "./withdraw-router";
+import transferRouter from "./transfer-router";
 import dashboardRouter from "./dashboard-router";
 import { Request, Response, NextFunction } from "express";
 import ResponseError from "../error/response-error";
@@ -17,6 +18,7 @@ app.use(categoryRouter);
 app.use(campaignRouter);
 app.use(newsRouter);
 app.use(withdrawRouter);
+app.use(transferRouter);
 app.use(homeRouter);
 app.use(dashboardRouter);
 app.use((req: Request, res: Response, next: NextFunction) => {

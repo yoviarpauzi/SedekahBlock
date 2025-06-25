@@ -7,6 +7,7 @@ import moveImageFromTemp from "../utils/moveImageFromTemp";
 import extractMatches from "../utils/extractImageFileName";
 import prisma from "../config/database";
 import { title } from "process";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const regex = /\/campaigns\/content\/([^"' ]+)/g;
 const urlRegex: RegExp = /http?:\/\/[^"' ]+\/campaigns\/content\/([^"' ]+)/g;
@@ -368,6 +369,40 @@ const getHistories = async (
   });
 };
 
+const withdrawOperational = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const campaignId = Number(req.params.id);
+
+    await campaignService.withdrawOperational(campaignId);
+
+    res.status(200).json({
+      message: "success withdraw operational",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getAllActiveCampaign = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const campaigns = await campaignService.getAllActiveCampaign();
+    res.status(200).json({
+      message: "success retrieve active campaign",
+      campaigns: campaigns,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export default {
   create,
   update,
@@ -379,4 +414,6 @@ export default {
   updateBalanceAndCollected,
   toggleStatus,
   getHistories,
+  withdrawOperational,
+  getAllActiveCampaign,
 };

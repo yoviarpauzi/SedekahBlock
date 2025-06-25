@@ -51,6 +51,19 @@ const useAuthStore = defineStore("auth", {
       this.profile_picture = null;
       this.isLoading = false;
     },
+    async updateProfile(usersId: number, name: string, profile_picture: File) {
+      try {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("profile_picture", profile_picture);
+        await axios.put(`${serverURI}/api/users/${usersId}`, formData, {
+          withCredentials: true,
+        });
+        await this.authentication(sessionStorage.getItem("walletAddress")!);
+      } catch (err) {
+        throw err;
+      }
+    },
   },
   getters: {
     isAdmin(): boolean {

@@ -14,16 +14,6 @@ export const columns: ColumnDef<News>[] = [
     header: () => "Title",
   },
   {
-    accessorKey: "body",
-    header: () => "Body",
-    cell: ({ row }) => {
-      const body = row.original.body;
-      const plainText = body.replace(/<[^>]+>/g, "");
-      const words = plainText.trim().split(/\s+/).slice(0, 10).join(" ");
-      return h("div", { class: "text-left" }, words);
-    },
-  },
-  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {

@@ -25,6 +25,8 @@ import CreateNews from "@/pages/Admin/Campaign/CreateNews.vue";
 import UpdateNews from "@/pages/Admin/Campaign/UpdateNews.vue";
 import CreateWithdraw from "@/pages/Admin/Campaign/CreateWithdraw.vue";
 import UpdateWithdraw from "@/pages/Admin/Campaign/UpdateWithdraw.vue";
+import CreateTransfer from "@/pages/Admin/Campaign/CreateTransfer.vue";
+import Account from "@/pages/Account.vue";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -63,6 +65,13 @@ export const routes: RouteRecordRaw[] = [
           requireExistId: true,
         },
         component: FundDisbursement,
+      },
+      {
+        path: "/account",
+        meta: {
+          requireConnect: true,
+        },
+        component: Account,
       },
     ],
   },
@@ -140,6 +149,20 @@ export const routes: RouteRecordRaw[] = [
           requireWithdrawExistId: true,
         },
         component: UpdateWithdraw,
+      },
+      {
+        path: "campaigns/details/:id/transfer/create",
+        meta: {
+          requireExistId: true,
+        },
+        component: CreateTransfer,
+      },
+      {
+        path: "account",
+        meta: {
+          requiresAdmin: true,
+        },
+        component: Account,
       },
     ],
   },

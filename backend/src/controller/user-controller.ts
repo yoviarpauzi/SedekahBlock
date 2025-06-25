@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import userService from "../services/user-service";
-import userValidation from "../validations/user-validation";
+import path from "path";
+import fs from "fs/promises";
 
 const getProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -52,25 +53,42 @@ const getUsers = async (req: Request, res: Response, next: NextFunction) => {
 
 const update = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = req.params.id;
-    const validate = userValidation.update.parse(req.body);
+    let file = req.file?.filename;
+    const id = Number(req.params.id);
+    const user = await userService.getUserById(id);
 
-    const user = await userService.update(Number(id), validate.name);
+    if (file) {
+      const newProfile = `users/${file}`;
+      if (
+        user?.profile_picture != newProfile &&
+        !user?.profile_picture.includes("ui-avatars.com")
+      ) {
+        const oldProfilePath = path.resolve(
+          __dirname,
+          `../storage/${user?.profile_picture}`
+        );
+        try {
+          await fs.unlink(oldProfilePath);
+        } catch (err) {
+          throw err;
+        }
+      }
+    } else {
+      file = user?.profile_picture;
+    }
+
+    if (!req.body.name) {
+      req.body.name = user?.name;
+    }
+
+    await userService.update(id, req.body.name, file!);
 
     res.status(200).json({
       message: "success update user data",
-      data: {
-        ...user,
-      },
     });
   } catch (err) {
     next(err);
   }
-};
-
-const updateProfile = async (req: Request, res: Response) => {
-  const id = req.params.id;
-  const validate = userValidation;
 };
 
 export default {
@@ -78,5 +96,4 @@ export default {
   getUser,
   getUsers,
   update,
-  updateProfile,
 };

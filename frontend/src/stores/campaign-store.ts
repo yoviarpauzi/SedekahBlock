@@ -127,6 +127,25 @@ const useCampaignStore = defineStore("campaign", {
         throw err;
       }
     },
+
+    async withdrawOperational(id: number) {
+      try {
+        this.isLoading = true;
+
+        await axios.put(
+          `${serverURI}/api/campaigns/id/${id}/withdrawOperational`,
+          {
+            withCredentials: true,
+          }
+        );
+
+        await this.getCampaign(id);
+      } catch (err) {
+        throw err;
+      } finally {
+        this.isLoading = false;
+      }
+    },
   },
 });
 

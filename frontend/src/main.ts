@@ -96,6 +96,13 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  if (to.meta.requireConnect) {
+    const userStore = useUserStore();
+    if (userStore.id == null) {
+      return next("/error/401");
+    }
+  }
+
   next();
 });
 

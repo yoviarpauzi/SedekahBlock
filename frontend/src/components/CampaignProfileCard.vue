@@ -49,6 +49,123 @@
           {{ campaign._count?.donation_histories }}
           Donasi
         </p>
+
+        <div v-if="campaign.collected >= 1">
+          <Drawer>
+            <DrawerTrigger>
+              <p class="text-sm hover:underline">Rincian Penggunaan Dana</p>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div class="container">
+                <DrawerHeader>
+                  <DrawerTitle class="text-lg font-semibold">
+                    Rincian Penggunaan Dana
+                  </DrawerTitle>
+                  <DrawerDescription class="text-left text-sm text-gray-600">
+                    Detail penggunaan dana dari kampanye penggalangan ini
+                  </DrawerDescription>
+                </DrawerHeader>
+                <div class="p-4 pb-0">
+                  <div class="mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <div
+                        class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center"
+                      >
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span class="font-medium text-gray-700"
+                        >Status Dana Terkumpul</span
+                      >
+                    </div>
+                    <p class="text-sm text-gray-600 ml-6">
+                      Penggalangan dana sudah berlangsung selama
+                      {{ donationDaysLive }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <!-- Total Dana Terkumpul -->
+                  <div
+                    class="flex justify-between items-center p-3 bg-green-50 rounded-lg"
+                  >
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="bg-green-800 text-white text-xs px-2 py-1 rounded font-bold"
+                        >{{ progress }}%</span
+                      >
+                      <span class="font-medium">Dana terkumpul</span>
+                    </div>
+                    <span class="font-semibold"
+                      >{{ Number(campaign.collected).toFixed(2) }} TON</span
+                    >
+                  </div>
+
+                  <!-- Dana untuk penggalangan -->
+                  <div class="space-y-2">
+                    <div
+                      class="flex justify-between items-center p-2 bg-green-50 rounded"
+                    >
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="bg-green-800 text-white text-xs px-2 py-1 rounded font-bold"
+                          >95%</span
+                        >
+                        <span class="text-sm">Donasi untuk kampanye</span>
+                      </div>
+                      <span class="text-sm font-medium"
+                        >{{
+                          Number(campaign.collected * 0.95).toFixed(2)
+                        }}
+                        TON</span
+                      >
+                    </div>
+
+                    <!-- Detail breakdown -->
+                    <div class="mx-4 space-y-2 text-sm">
+                      <div class="flex justify-between">
+                        <span class="text-gray-600">Sudah dicairkan</span>
+                        <span>{{ disbursedFunds }} TON</span>
+                      </div>
+                      <div class="flex justify-between font-medium">
+                        <span class="text-gray-700">Belum dicairkan</span>
+                        <span class="font-semibold"
+                          >{{ campaign.balance }} TON</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <div
+                      class="flex justify-between items-center p-2 bg-green-50 rounded"
+                    >
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="bg-green-800 text-white text-xs px-2 py-1 rounded font-bold"
+                          >5%</span
+                        >
+                        <span class="text-sm">Biaya teknologi</span>
+                      </div>
+                      <span class="text-sm font-medium"
+                        >{{
+                          Number(campaign.collected * 0.05).toFixed(2)
+                        }}
+                        TON</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <DrawerFooter>
+                  <DrawerClose as-child>
+                    <Button variant="success"> Tutup </Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
     </div>
   </div>
@@ -56,10 +173,20 @@
 
 <script setup lang="ts">
 import { serverURI } from "@/utils/environment";
-import { computed } from "vue";
+import Button from "./ui/button/Button.vue";
+import { computed, watch, ref } from "vue";
 import Progress from "./ui/progress/Progress.vue";
-import availableDonation from "@/utils/availableDonation";
 import { Heart } from "lucide-vue-next";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const props = defineProps<{
   campaign: {
@@ -67,6 +194,7 @@ const props = defineProps<{
     target: number;
     balance: number;
     collected: number;
+    operational_costs: number;
     end_at: Date;
     thumbnail: string | File;
     story: string;
@@ -76,6 +204,8 @@ const props = defineProps<{
     };
   };
 }>();
+
+const disbursedFunds = ref("");
 
 const progress = computed(() => {
   const collected = Number(props.campaign.collected ?? 0);
@@ -96,4 +226,32 @@ const donationDaysLeft = computed(() => {
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   return diffDays > 0 ? `${diffDays} hari lagi` : "Donasi telah berakhir";
 });
+
+const donationDaysLive = computed(() => {
+  const now = new Date();
+  const createdAt = new Date(props.campaign.created_at);
+
+  if (isNaN(createdAt.getTime())) {
+    return "Tanggal tidak valid";
+  }
+
+  const diffMs = now.getTime() - createdAt.getTime();
+  const diffDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+  return diffDays > 0 ? `${diffDays} hari` : "Hari ini dimulai";
+});
+
+watch(
+  () => props.campaign,
+  (newCampaign) => {
+    if (newCampaign.collected !== undefined) {
+      disbursedFunds.value = Number(
+        Number(newCampaign.collected ?? 0) -
+          Number(newCampaign.balance ?? 0) -
+          Number(newCampaign.operational_costs ?? 0)
+      ).toFixed(2);
+    }
+  },
+  { immediate: true, deep: true }
+);
 </script>

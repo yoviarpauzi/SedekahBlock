@@ -67,7 +67,7 @@
           </div>
           <div class="w-16 h-px bg-green-800 md:self-end"></div>
           <p class="text-xs text-green-800">
-            © 2025 Yayasan Pribumi untuk Negeri. All rights reserved.
+            © 2025 AdaCode. All rights reserved.
           </p>
         </div>
       </div>

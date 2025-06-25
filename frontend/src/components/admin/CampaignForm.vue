@@ -87,15 +87,22 @@
       <FormItem>
         <FormLabel>Target <span class="text-red-400">*</span></FormLabel>
         <FormControl>
-          <Input
-            type="number"
-            placeholder="1.00"
-            class="selection:bg-gray-300 selection:text-black"
-            v-bind="componentField"
-            step="0.01"
-            @input="onInputChange('target', parseFloat($event.target.value))"
-            :value="values.target"
-          />
+          <div class="relative w-full">
+            <Input
+              type="number"
+              placeholder="0"
+              step="0.01"
+              class="w-full !pr-14 !pl-4 !py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 no-spinner selection:bg-gray-300 selection:text-black"
+              v-bind="componentField"
+              @input="onInputChange('target', parseFloat($event.target.value))"
+              :value="values.target"
+            />
+            <span
+              class="absolute inset-y-0 right-4 flex items-center text-gray-500 text-sm pointer-events-none"
+            >
+              TON
+            </span>
+          </div>
         </FormControl>
         <FormDescription>
           Sama Dengan :

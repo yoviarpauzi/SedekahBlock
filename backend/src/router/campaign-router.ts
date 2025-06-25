@@ -58,4 +58,14 @@ router.get("/api/campaigns/id/:id/histories", campaignController.getHistories);
 
 router.patch("/api/campaigns/id/:id/status", campaignController.toggleStatus);
 
+router.put(
+  "/api/campaigns/id/:id/withdrawOperational",
+  campaignController.withdrawOperational
+);
+
+router.get(
+  "/api/campaigns/getActives",
+  campaignController.getAllActiveCampaign
+);
+
 export default router;

@@ -1,11 +1,11 @@
-import { Address, OpenedContract, toNano } from '@ton/core';
-import { Donation } from '../wrappers/Donation';
+import { Address, Dictionary, toNano } from '@ton/core';
+import { Donation } from '../build/Donation/Donation_Donation';
 import { NetworkProvider } from '@ton/blueprint';
 import { ownerAddress } from '../utils/environment';
 
 export async function run(provider: NetworkProvider) {
-    const owner: Address = Address.parse(ownerAddress!);
-    const donation: OpenedContract<Donation> = provider.open(await Donation.fromInit(owner));
+    const address = Address.parse(ownerAddress!);
+    const donation = provider.open(await Donation.fromInit(address, Dictionary.empty(), 0n));
 
     await donation.send(
         provider.sender(),

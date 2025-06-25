@@ -10,7 +10,7 @@ interface Withdraw {
   created_at: string;
 }
 
-const useCampaignStore = defineStore("withdraw", {
+const useWithdrawStore = defineStore("withdraw", {
   state: () => ({
     data: [] as Withdraw[],
     currentWithdraw: {} as Withdraw,
@@ -123,4 +123,4 @@ const useCampaignStore = defineStore("withdraw", {
   },
 });
 
-export default useCampaignStore;
+export default useWithdrawStore;

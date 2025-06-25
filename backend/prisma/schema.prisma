@@ -60,6 +60,7 @@ model Campaign {
   is_admin_withdraw     Boolean   @default(false)
   is_active             Boolean   @default(true)
   is_withdraw           Boolean   @default(false)
+  is_transfer           Boolean   @default(false)
   created_at            DateTime  @default(now())
   updated_at            DateTime? @updatedAt
 
@@ -69,6 +70,7 @@ model Campaign {
   donors                      Donor[]
   news                        News[]
   fund_disbursement_histories FundDisbursementHistories[]
+  transfer_histories          TransferHistories[]
 
   @@map("campaigns")
 }
@@ -128,4 +130,17 @@ model FundDisbursementHistories {
   campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("fund_disbursement_histories")
+}
+
+model TransferHistories {
+  id                   Int       @id @default(autoincrement())
+  campaigns_id         Int
+  receiver_campaign_id Int
+  amount               Decimal   @db.Decimal(10, 2)
+  created_at           DateTime  @default(now())
+  updated_at           DateTime? @updatedAt
+
+  campaign Campaign @relation(fields: [campaigns_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("transfer_histories")
 }

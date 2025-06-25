@@ -1,6 +1,6 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { toNano } from '@ton/core';
-import { CreateCampaign, DeleteCampaign, Donation, ReceiveDonation, WithdrawCampaign } from '../wrappers/Donation';
+import { Dictionary, toNano } from '@ton/core';
+import { CreateCampaign, Donation, DeleteCampaign } from '../build/Donation/Donation_Donation';
 import '@ton/test-utils';
 
 describe('Donation: Delete Campaign', () => {
@@ -11,8 +11,7 @@ describe('Donation: Delete Campaign', () => {
     beforeEach(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
-
-        donation = blockchain.openContract(await Donation.fromInit(deployer.address));
+        donation = blockchain.openContract(await Donation.fromInit(deployer.address, Dictionary.empty(), 0n));
 
         const deployResult = await donation.send(
             deployer.getSender(),

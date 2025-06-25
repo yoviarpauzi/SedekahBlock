@@ -34,7 +34,7 @@
             v-show="!expanded"
             variant="success"
             @click="expanded = true"
-            class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 z-10"
+            class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2"
           >
             Baca Selengkapnya
           </Button>
@@ -257,6 +257,14 @@ const formScheme = toTypedSchema(
       .positive()
       .refine(
         (value) => {
+          return value <= Number(balance.value);
+        },
+        {
+          message: `Jumlah donasi tidak boleh melebihi saldo anda`,
+        }
+      )
+      .refine(
+        (value) => {
           return Number.isInteger(value * 100);
         },
         {
@@ -282,7 +290,7 @@ const onSubmit = handleSubmit(async (values) => {
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
-          .storeUint(0x6df5405e, 32)
+          .storeUint(1844789342, 32)
           .storeUint(queryId, 32)
           .storeUint(toNano(amount), 256)
           .endCell();
