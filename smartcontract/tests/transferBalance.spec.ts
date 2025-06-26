@@ -8,7 +8,7 @@ describe('Donation: Transfer Campaign', () => {
     let deployer: SandboxContract<TreasuryContract>;
     let donation: SandboxContract<Donation>;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
         donation = blockchain.openContract(await Donation.fromInit(deployer.address, Dictionary.empty(), 0n));
@@ -109,7 +109,7 @@ describe('Donation: Transfer Campaign', () => {
     it('should be fail transfer campaign balance if sender balance to be less than id transfer amount', async () => {
         await Promise.all([createCampaign(1n), donateCampaign(1n, 3n), createCampaign(2n)]);
 
-        const transferWithGreaterThanReceiverCampaignBalance: any = await transferBalance(1n, 2n, 4n);
+        const transferWithGreaterThanReceiverCampaignBalance: any = await transferBalance(1n, 2n, 20n);
         expect(transferWithGreaterThanReceiverCampaignBalance.transactions[1].description.computePhase.exitCode).toBe(
             37,
         );

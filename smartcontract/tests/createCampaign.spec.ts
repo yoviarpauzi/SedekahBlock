@@ -8,7 +8,7 @@ describe('Donation: CreateCampaign', () => {
     let deployer: SandboxContract<TreasuryContract>;
     let donation: SandboxContract<Donation>;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         blockchain = await Blockchain.create();
         deployer = await blockchain.treasury('deployer');
         donation = blockchain.openContract(await Donation.fromInit(deployer.address, Dictionary.empty(), 0n));

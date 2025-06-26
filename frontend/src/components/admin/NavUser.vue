@@ -14,7 +14,7 @@
                     ? user.profile_picture.includes('ui-avatars.com')
                       ? user.profile_picture
                       : `${serverURI}/${user.profile_picture}`
-                    : 'https://ui-avatars.com/api/?name=ID'
+                    : `https://ui-avatars.com/api/?name=${user.name}`
                 "
                 :alt="user.name"
               />
@@ -42,7 +42,7 @@
                       ? user.profile_picture.includes('ui-avatars.com')
                         ? user.profile_picture
                         : `${serverURI}/${user.profile_picture}`
-                      : 'https://ui-avatars.com/api/?name=ID'
+                      : `https://ui-avatars.com/api/?name=${user.name}`
                   "
                   :alt="user.name"
                 />

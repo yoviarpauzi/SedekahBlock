@@ -29,7 +29,7 @@
                             ? profile.includes('ui-avatars.com')
                               ? profile
                               : `${serverURI}/${profile}`
-                            : 'https://ui-avatars.com/api/?name=ID'
+                            : `https://ui-avatars.com/api/?name=${authStore.name}`
                         "
                         class="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                       />
