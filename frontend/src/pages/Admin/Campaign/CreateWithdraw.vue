@@ -5,7 +5,7 @@
     v-else
     :submit="createWithdraw"
     :set-field-value="setFieldValue"
-    action="Create"
+    action="Withdraw"
     :is-field-dirty="isFieldDirty"
     :values="values"
   />

@@ -4,7 +4,7 @@
   <TransferForm
     :submit="createTransfer"
     :set-field-value="setFieldValue"
-    action="Create"
+    action="Transfer"
     :is-field-dirty="isFieldDirty"
     :values="values"
   />
