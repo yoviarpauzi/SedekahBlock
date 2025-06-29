@@ -36,7 +36,13 @@
                 class="w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex-shrink-0"
               >
                 <img
-                  :src="history.users.profile_picture"
+                  :src="
+                    history.users.profile_picture
+                      ? history.users.profile_picture.includes('ui-avatars.com')
+                        ? history.users.profile_picture
+                        : `${serverURI}/${history.users.profile_picture}`
+                      : 'https://ui-avatars.com/api/?name=ID'
+                  "
                   :alt="history.users.name"
                   class="w-full h-full object-cover"
                 />
