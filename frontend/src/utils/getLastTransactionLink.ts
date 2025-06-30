@@ -1,13 +1,9 @@
 import { Cell, Address, beginCell, storeMessage, TonClient } from "@ton/ton";
-// import { tonApiKey } from "./environment";
-
-// const client = new TonClient({
-//   endpoint: "https://testnet.toncenter.com/api/v2/jsonRPC",
-//   apiKey: tonApiKey,
-// });
+import { tonApiKey } from "./environment";
 
 const client = new TonClient({
   endpoint: "https://testnet.toncenter.com/api/v2/jsonRPC",
+  //   apiKey: tonApiKey,
 });
 
 async function retry(
