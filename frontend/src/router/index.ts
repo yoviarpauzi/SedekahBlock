@@ -43,6 +43,9 @@ export const routes: RouteRecordRaw[] = [
       },
       {
         path: "campaigns/details/:id",
+        meta: {
+          requireExistId: true,
+        },
         component: DetailCampaign,
       },
       {

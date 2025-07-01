@@ -14,14 +14,14 @@
     </Button>
     <Button
       variant="success"
+      @click="adminWithdraw"
       v-if="
         (!campaignStore.currentCampaign.is_active ||
           new Date(campaignStore.currentCampaign.end_at) < new Date()) &&
         !campaignStore.currentCampaign.is_admin_withdraw &&
         campaignStore.currentCampaign?._count?.fund_disbursement_histories! > 0 && campaignStore.currentCampaign.operational_costs > 0
       "
-      @click="adminWithdraw"
-      >Admin Withdraw</Button
+      >Withdraw Operational</Button
     >
   </div>
 
