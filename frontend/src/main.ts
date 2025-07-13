@@ -26,6 +26,7 @@ const app = createApp(App);
 const vueton = createVueton({
   tonClient: tonConfig.client,
   tonConnectUI: tonConfig.connectUI,
+  
 });
 
 const pinia = createPinia();

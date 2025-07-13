@@ -26,13 +26,16 @@
                       <img
                         :src="
                           profile
-                            ? profile.includes('ui-avatars.com')
+                            ? profile.startsWith('data:image/')
+                              ? profile
+                              : profile.includes('ui-avatars.com')
                               ? profile
                               : `${serverURI}/${profile}`
                             : `https://ui-avatars.com/api/?name=${authStore.name}`
                         "
                         class="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                       />
+
                       <label
                         class="absolute -bottom-1 -right-1 bg-green-500 hover:bg-green-600 text-white p-1.5 rounded-full cursor-pointer transition-colors"
                       >

@@ -58,21 +58,17 @@ const update = async (req: Request, res: Response, next: NextFunction) => {
     const user = await userService.getUserById(id);
 
     if (file) {
-      const newProfile = `users/${file}`;
-      if (
-        user?.profile_picture != newProfile &&
-        !user?.profile_picture.includes("ui-avatars.com")
-      ) {
+        file = `users/${file}`;
         const oldProfilePath = path.resolve(
           __dirname,
           `../storage/${user?.profile_picture}`
         );
+
         try {
           await fs.unlink(oldProfilePath);
         } catch (err) {
-          throw err;
+          console.error("Error deleting old profile picture:", err);
         }
-      }
     } else {
       file = user?.profile_picture;
     }
