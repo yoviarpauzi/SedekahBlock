@@ -1,5 +1,5 @@
 {
-  "include": ["./src/**/*.ts", "./main.ts", "./test/**/*.ts", "./generated/**/*.ts"],
+  "include": ["./src/**/*.ts", "./main.ts", "./test/**/*.ts", "./generated/prisma/**/*.ts"],
   "files": ["./src/types/express/index.d.ts"],
   // "exclude": ["./test/**/*.ts"],
   "compilerOptions": {

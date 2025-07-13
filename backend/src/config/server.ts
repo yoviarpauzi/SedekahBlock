@@ -3,10 +3,11 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
 import cors, { CorsOptions } from "cors";
+import { feOrigin } from "../utils/environment";
 import path from "path";
 
 const corsOptions: CorsOptions = {
-  origin: "http://localhost:5173",
+  origin: feOrigin,
   credentials: true,
   optionsSuccessStatus: 200,
 };
