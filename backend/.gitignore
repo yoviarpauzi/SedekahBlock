@@ -4,6 +4,7 @@ prisma/migrations
 coverage
 generated
 logs
+build/
 
 # Keep environment variables out of version control
 .env

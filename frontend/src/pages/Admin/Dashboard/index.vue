@@ -233,36 +233,7 @@ const donationCountSeries = computed(() => {
   ];
 });
 
-// Computed properties untuk statistik tambahan
-const averageDonationPerTransaction = computed(() => {
-  if (!dashboardData.value.monthly_donation?.length) return "0.0";
-  const totalAmount = dashboardData.value.monthly_donation.reduce(
-    (sum, item) => sum + item.total_amount,
-    0
-  );
-  const totalCount = dashboardData.value.monthly_donation.reduce(
-    (sum, item) => sum + item.donation_count,
-    0
-  );
-  return totalCount > 0 ? (totalAmount / totalCount).toFixed(2) : "0.0";
-});
 
-const totalDonors = computed(() => {
-  if (!dashboardData.value.monthly_donation?.length) return 0;
-  return dashboardData.value.monthly_donation.reduce(
-    (sum, item) => sum + item.donation_count,
-    0
-  );
-});
-
-const activePercentage = computed(() => {
-  if (!dashboardData.value.campaigns_count) return 0;
-  return Math.round(
-    (dashboardData.value.active_campaigns_count /
-      dashboardData.value.campaigns_count) *
-      100
-  );
-});
 
 const donationAmountOptions = computed(() => ({
   chart: {

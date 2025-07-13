@@ -143,7 +143,6 @@ import Skeleton from "@/components/ui/skeleton/Skeleton.vue";
 import useCategoryStore from "@/stores/category-store";
 import { onMounted, ref, watch } from "vue";
 import { valueUpdater } from "@/components/ui/table/utils";
-import parseBase64ToHex from "@/utils/parseBase64ToHex";
 
 type Type = "all" | "ongoing" | "conclude";
 

@@ -37,6 +37,7 @@ app.use(vueton);
 app.use(pinia);
 app.use(VueApexCharts);
 
+// @ts-ignore
 router.beforeEach(async (to, from, next) => {
   const walletAddress = sessionStorage.getItem("walletAddress");
   const userStore = useUserStore();

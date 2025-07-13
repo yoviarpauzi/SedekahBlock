@@ -224,6 +224,7 @@ import { cn } from "@/lib/utils";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import BlotFormatter from "quill-blot-formatter";
+// @ts-ignore
 import ImageUploader from "quill-image-uploader";
 import "quill-image-uploader/dist/quill.imageUploader.min.css";
 import useCategoryStore from "@/stores/category-store";

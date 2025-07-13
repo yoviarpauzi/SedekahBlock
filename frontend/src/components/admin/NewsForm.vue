@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import BlotFormatter from "quill-blot-formatter";
+// @ts-ignore
 import ImageUploader from "quill-image-uploader";
 import axios from "axios";
 import { serverURI } from "@/utils/environment";
