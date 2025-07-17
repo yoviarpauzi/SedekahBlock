@@ -310,10 +310,8 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (success.value) {
       loading.value = true;
-      const lastTransactionlink = await getLastTransactionsLink(
-        response.boc,
-        walletAddress
-      );
+      console.log(response.boc);
+      const lastTransactionlink = await getLastTransactionsLink(response.boc);
 
       await campaignStore
         .updateBalanceAndCollected(queryId, amount, lastTransactionlink)

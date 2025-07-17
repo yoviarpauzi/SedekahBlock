@@ -1,65 +1,40 @@
-import { Cell, Address, beginCell, storeMessage, TonClient } from "@ton/ton";
+import TonWeb from "tonweb";
 
-const client = new TonClient({
-  endpoint: "https://testnet.toncenter.com/api/v2/jsonRPC",
-  //   apiKey: tonApiKey,
-});
+async function getLastTransactionLink(exBoc: string): Promise<string> {
+  const maxRetries = 20;
+  const retryDelay = 3000;
 
-async function retry(
-  fn: () => Promise<any>,
-  options: { retries: number; delay: number }
-) {
-  const { retries = 3, delay = 1500 } = options;
-
-  for (let i = 0; i <= retries; i++) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await fn();
-    } catch (error) {
-      if (i === retries) {
-        throw error;
+      const cell = TonWeb.boc.Cell.oneFromBoc(
+        TonWeb.utils.base64ToBytes(exBoc)
+      );
+      const hash = await cell.hash();
+      const hashHex = TonWeb.utils.bytesToHex(hash);
+
+      const response = await fetch(
+        `https://testnet.tonapi.io/v2/blockchain/messages/${hashHex}/transaction`
+      );
+
+      const transactionData = await response.json();
+
+      if (!transactionData || !transactionData.hash) {
+        throw new Error("Transaction data is undefined or invalid");
       }
-      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      return `https://testnet.tonviewer.com/transaction/${transactionData.hash}`;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw new Error(
+          `Failed to get transaction after ${maxRetries} attempts: ${error}`
+        );
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
   }
+
+  throw new Error("Unexpected error in retry loop");
 }
 
-export async function getLastTransactionsLink(
-  exBoc: string,
-  walletAddress: string
-) {
-  const myAddress = Address.parse(walletAddress);
-
-  return retry(
-    async () => {
-      const transactions = await client.getTransactions(myAddress, {
-        limit: 5,
-      });
-
-      for (const tx of transactions) {
-        const inMsg = tx.inMessage;
-        if (inMsg?.info.type === "external-in") {
-          const inBOC = inMsg?.body;
-          if (typeof inBOC === "undefined") {
-            continue;
-          }
-
-          const extHash = Cell.fromBase64(exBoc).hash().toString("hex");
-          const inHash = beginCell()
-            .store(storeMessage(inMsg))
-            .endCell()
-            .hash()
-            .toString("hex");
-
-          if (extHash === inHash) {
-            const txHash = tx.hash().toString("hex");
-            return `https://testnet.tonviewer.com/transaction/${txHash}`;
-          }
-        }
-      }
-      throw new Error("Transaction not found");
-    },
-    { retries: 30, delay: 1500 }
-  );
-}
-
-export default getLastTransactionsLink;
+export default getLastTransactionLink;
