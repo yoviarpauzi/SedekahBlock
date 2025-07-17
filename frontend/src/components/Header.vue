@@ -79,7 +79,13 @@
                   >
                     <Avatar class="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        :src="user.profile_picture ?? 'ID'"
+                        :src="
+                          user.profile_picture
+                            ? user.profile_picture.includes('ui-avatars.com')
+                              ? user.profile_picture
+                              : `${serverURI}/${user.profile_picture}`
+                            : 'https://ui-avatars.com/api/?name=ID'
+                        "
                         :alt="user.name"
                       />
                       <AvatarFallback class="rounded-lg"> ID </AvatarFallback>
