@@ -310,7 +310,6 @@ const onSubmit = handleSubmit(async (values) => {
 
     if (success.value) {
       loading.value = true;
-      console.log(response.boc);
       const lastTransactionlink = await getLastTransactionsLink(response.boc);
 
       await campaignStore

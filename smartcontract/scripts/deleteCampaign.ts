@@ -7,6 +7,14 @@ export async function run(provider: NetworkProvider) {
     const address = Address.parse(contractAddress!);
     const donation = provider.open(Donation.fromAddress(address));
 
-    const campaignBalance = await donation.getCampaignBalance(4n);
-    console.log(campaignBalance);
+    await donation.send(
+        provider.sender(),
+        {
+            value: toNano('0.05'),
+        },
+        {
+            $$type: 'DeleteCampaign',
+            id: 1n,
+        },
+    );
 }
