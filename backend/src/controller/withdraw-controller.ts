@@ -32,7 +32,6 @@ const uploadWithdrawImage = async (
       "host"
     )}/campaigns/withdraw/content/${req.file.filename}`;
 
-    console.log(fileUrl);
     res.status(200).json({
       message: "success upload image content",
       url: fileUrl,
