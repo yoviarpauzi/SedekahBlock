@@ -186,7 +186,6 @@ const { handleSubmit, setFieldValue } = form;
 const onSubmit = handleSubmit(async (values) => {
   try {
     isLoading.value = true;
-    console.log(values);
     await authStore.updateProfile(
       authStore.id!,
       values.name,
