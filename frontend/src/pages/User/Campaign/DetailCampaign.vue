@@ -132,7 +132,7 @@
         <div
           v-show="
             campaignStore.currentCampaign.is_active &&
-            new Date(campaignStore.currentCampaign.end_at) > new Date() &&
+            new Date(campaignStore.currentCampaign.end_at) > new Date()
           "
           class="my-4 p-6 border shadow-sm rounded-md bg-white"
         >
