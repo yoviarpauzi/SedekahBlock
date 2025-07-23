@@ -7,6 +7,6 @@ export async function run(provider: NetworkProvider) {
     const address = Address.parse(contractAddress!);
     const donation = provider.open(Donation.fromAddress(address));
 
-    const campaignBalance = await donation.getCampaignBalance(4n);
+    const campaignBalance = await donation.getCampaignBalance(6n);
     console.log(campaignBalance);
 }

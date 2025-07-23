@@ -112,9 +112,7 @@ onMounted(async () => {
   try {
     await campaignStore.getCampaign(campaignId);
 
-    maxTransfer.value =
-      Number(campaignStore.currentCampaign.balance) +
-      Number(campaignStore.currentCampaign.operational_costs);
+    maxTransfer.value = Number(campaignStore.currentCampaign.balance);
 
     isLoaded.value = true;
   } catch (err) {
