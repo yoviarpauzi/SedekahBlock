@@ -280,7 +280,7 @@ const { resetForm, handleSubmit, values } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    if (tonNetwork.value !== "testnet") {
+    if (tonNetwork.value !== "testnet" && walletAddress === "") {
       await connectWallet();
       return;
     }
