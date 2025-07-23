@@ -128,7 +128,7 @@ const knownWallets = [
 const EXPIRATION_SECONDS = 3600; // 1 hour
 const TON_PROOF_PREFIX = "ton-proof-item-v2/";
 const TON_CONNECT_PREFIX = "ton-connect";
-const allowedDomains = ["localhost:5173", feURI];
+const allowedDomains = ["localhost:5173", "sedekahblock.adaai.id", feURI];
 const validAuthTime = 15 * 60; // 15 minute
 
 // Improved tryParsePublicKey function
