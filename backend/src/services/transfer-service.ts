@@ -38,16 +38,7 @@ const create = async (
       ? increaseCollected!.mul(0.05)
       : receiverCampaign!.operational_costs;
 
-    const decreaseBalance = campaign?.balance.lessThanOrEqualTo(
-      new Decimal(amount)
-    )
-      ? Decimal(0)
-      : campaign?.balance.minus(new Decimal(amount));
-    const decreaseOperationalCosts = campaign?.balance.lessThan(
-      new Decimal(amount)
-    )
-      ? campaign?.operational_costs.minus(new Decimal(amount))
-      : campaign?.operational_costs;
+    const decreaseBalance = campaign?.balance.minus(amount);
 
     await prisma.campaign.update({
       where: {
@@ -55,7 +46,6 @@ const create = async (
       },
       data: {
         balance: decreaseBalance,
-        operational_costs: decreaseOperationalCosts,
         is_transfer: true,
         transfer_histories: {
           create: {

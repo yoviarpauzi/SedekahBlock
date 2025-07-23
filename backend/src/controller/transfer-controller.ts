@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ResponseError from "../error/response-error";
 import transferService from "../services/transfer-service";
 
 const create = async (req: Request, res: Response, next: NextFunction) => {
