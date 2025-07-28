@@ -15,6 +15,9 @@ interface Campaign {
   story: string;
   operational_costs: number;
   is_admin_withdraw: boolean;
+  is_transfer: boolean;
+  total_transferred: number;
+  total_withdraw_amount: string;
   fund_disbursement_histories?: [{ updated_at: Date }];
   news?: [{ updated_at: Date }];
   _count?: {
@@ -68,6 +71,7 @@ const useCampaignStore = defineStore("campaign", {
         const res = await axios.get(`${serverURI}/api/campaigns/id/${id}`);
 
         const { data } = res.data;
+        console.log(data);
         this.currentCampaign = data;
       } catch (err) {
         throw err;

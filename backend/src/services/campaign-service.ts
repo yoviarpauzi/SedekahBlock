@@ -90,7 +90,21 @@ const getCampaign = async (id: number) => {
       },
     });
 
-    return campaign;
+    if (!campaign) {
+      return null;
+    }
+
+    const totalTransferred = await prisma.transferHistories.aggregate({
+      where: { campaigns_id: id },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    return {
+      ...campaign,
+      total_transferred: totalTransferred._sum.amount || 0,
+    };
   } catch (err) {
     throw err;
   }

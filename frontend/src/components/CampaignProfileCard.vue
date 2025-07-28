@@ -92,7 +92,7 @@
                     <div class="flex items-center gap-2">
                       <span
                         class="bg-green-800 text-white text-xs px-2 py-1 rounded font-bold"
-                        >{{ progress }}%</span
+                        >{{ Number(progress).toFixed(2) }}%</span
                       >
                       <span class="font-medium">Dana terkumpul</span>
                     </div>
@@ -125,7 +125,18 @@
                     <div class="mx-4 space-y-2 text-sm">
                       <div class="flex justify-between">
                         <span class="text-gray-600">Sudah dicairkan</span>
-                        <span>{{ disbursedFunds }} TON</span>
+                        <span>{{ campaign.total_withdraw_amount }} TON</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span class="text-gray-600"
+                          >Di transfer ke kampanye lain</span
+                        >
+                        <span
+                          >{{
+                            Number(campaign.total_transferred).toFixed(2)
+                          }}
+                          TON</span
+                        >
                       </div>
                       <div class="flex justify-between font-medium">
                         <span class="text-gray-700">Belum dicairkan</span>
@@ -149,7 +160,7 @@
                       </div>
                       <span class="text-sm font-medium"
                         >{{
-                          Number(campaign.collected * 0.05).toFixed(2)
+                          Number(campaign.operational_costs).toFixed(2)
                         }}
                         TON</span
                       >
@@ -197,7 +208,10 @@ const props = defineProps<{
     operational_costs: number;
     end_at: Date;
     thumbnail: string | File;
+    total_transferred: number;
+    total_withdraw_amount: string;
     story: string;
+    is_transfer: boolean;
     created_at: Date;
     _count?: {
       donation_histories?: number;
