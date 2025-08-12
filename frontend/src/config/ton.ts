@@ -5,7 +5,7 @@ const tonConfig = {
   },
   connectUI: {
     manifestUrl:
-      "https://gist.githubusercontent.com/yoviarpauzi/e62fee47f6c77367294d4460eb0dfda2/raw/cb2b259028b0c8ca65ccec7844d4799764f21b30/gistfile1.txt",
+      "https://gist.githubusercontent.com/yoviarpauzi/e62fee47f6c77367294d4460eb0dfda2/raw/c60fefb8a8552cef714dc5bf3f922c217d2dce75/gistfile1.txt",
   },
 };
 
