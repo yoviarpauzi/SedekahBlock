@@ -56,6 +56,10 @@
             </span>
           </div>
         </FormControl>
+        <FormDescription>
+          Sama Dengan :
+          {{ totalTargetPrice }}
+       </FormDescription>
         <FormMessage />
       </FormItem>
     </FormField>
@@ -73,6 +77,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription
 } from "@/components/ui/form";
 import {
   Select,
@@ -86,9 +91,11 @@ import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input/Input.vue";
 import axios from "axios";
 import { serverURI } from "@/utils/environment";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
+import getTonPrice from "@/utils/checkTonPrice";
 
+const tonPrice = ref<number>(0);
 const props = defineProps<{
   values: any;
   setFieldValue: Function;
@@ -117,10 +124,18 @@ const onCampaignChange = (value: number) => {
 };
 
 onMounted(async () => {
+  tonPrice.value = await getTonPrice();
   const res = await axios.get(`${serverURI}/api/campaigns/getActives`);
   campaigns.value = res.data.campaigns;
   campaigns.value = campaigns.value.filter(
     (campaign) => campaign.id !== campaignId
   );
+});
+
+const totalTargetPrice = computed(() => {
+  return (tonPrice.value * (props.values.amount ?? 0)).toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  });
 });
 </script>
