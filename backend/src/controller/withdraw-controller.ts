@@ -58,7 +58,8 @@ const create = async (req: Request, res: Response, next: NextFunction) => {
       campaignId,
       req.body.amount,
       req.body.title,
-      req.body.body
+      req.body.body,
+      req.body.receiverAddress
     );
 
     res.status(200).json({

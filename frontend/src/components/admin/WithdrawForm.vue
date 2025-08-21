@@ -1,5 +1,24 @@
 <template>
   <form class="space-y-6" @submit.prevent="submit">
+    <FormField v-slot="{ componentField }"
+      name="receiverAddress"
+      :validate-on-blur="!isFieldDirty('receiver_address')"
+      v-if="route.path.includes('/create')">
+      <FormItem>
+        <FormLabel for="receiverAddress">Receiver Address<span class="text-red-400">*</span></FormLabel>
+        <FormControl>
+          <Input
+            type="text"
+            placeholder=""
+            class="selection:bg-gray-300 selection:text-black"
+            v-bind="componentField"
+            @input="onInputChange('receiverAddress', $event.target.value)"
+            :value="values.receiverAddress || ''"
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    </FormField>
     <FormField
       v-slot="{ componentField }"
       name="amount"

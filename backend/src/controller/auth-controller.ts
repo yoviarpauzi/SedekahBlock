@@ -255,7 +255,7 @@ const getPublicKey = async (
       return new BN(pubkeyNum.toString()).toBuffer("be", 32);
     }
   } catch (error) {
-    console.log(
+    console.error(
       "get_public_key method failed, trying state_init parsing:",
       error
     );

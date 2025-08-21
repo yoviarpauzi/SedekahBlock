@@ -7,6 +7,7 @@ interface Withdraw {
   amount: number;
   title: string;
   body: string;
+  receiver_address: string;
 }
 
 export const columns: ColumnDef<Withdraw>[] = [
@@ -21,6 +22,10 @@ export const columns: ColumnDef<Withdraw>[] = [
       const formatted: string = row.getValue("amount") + " TON";
       return h("div", { class: "text-left " }, formatted);
     },
+  },
+  {
+    accessorKey: "receiver_address",
+    header: () => "Receiver Address",
   },
   {
     id: "actions",

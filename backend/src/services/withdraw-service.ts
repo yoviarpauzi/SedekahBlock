@@ -6,7 +6,8 @@ const create = async (
   campaignId: number,
   amount: number,
   title: string,
-  body: string
+  body: string,
+  receiverAddress: string
 ) => {
   const campaign = await prisma.campaign.findUnique({
     where: {
@@ -29,6 +30,7 @@ const create = async (
           amount: amount,
           title: title,
           body: body,
+          receiver_address: receiverAddress
         },
       },
     },

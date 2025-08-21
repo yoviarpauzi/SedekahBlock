@@ -8,6 +8,7 @@ interface Withdraw {
   title: string;
   body: string;
   created_at: string;
+  receiver_address: string;
 }
 
 const useWithdrawStore = defineStore("withdraw", {
@@ -56,7 +57,8 @@ const useWithdrawStore = defineStore("withdraw", {
       campaignId: number,
       amount: number,
       title: string,
-      body: string
+      body: string,
+      receiverAddress: string
     ) {
       try {
         this.isLoading = true;
@@ -67,6 +69,7 @@ const useWithdrawStore = defineStore("withdraw", {
               amount: amount,
               title: title,
               body: body,
+              receiverAddress: receiverAddress
             },
             {
               withCredentials: true,

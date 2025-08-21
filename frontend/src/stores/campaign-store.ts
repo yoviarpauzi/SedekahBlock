@@ -71,7 +71,6 @@ const useCampaignStore = defineStore("campaign", {
         const res = await axios.get(`${serverURI}/api/campaigns/id/${id}`);
 
         const { data } = res.data;
-        console.log(data);
         this.currentCampaign = data;
       } catch (err) {
         throw err;

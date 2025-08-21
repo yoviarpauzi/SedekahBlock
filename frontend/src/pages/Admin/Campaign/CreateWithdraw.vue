@@ -37,6 +37,7 @@ const { sendTransaction } = useTonConnect();
 const formScheme = computed(() =>
   toTypedSchema(
     z.object({
+      receiverAddress: z.string().max(100),
       amount: z
         .number()
         .min(1)
@@ -69,12 +70,14 @@ const { resetForm, handleSubmit, values, setFieldValue, isFieldDirty } =
 
 const createWithdraw = handleSubmit(async (values) => {
   try {
+    const receiverAddress = Address.parse(values.receiverAddress);
     const { sendMessage, success, fail } = useSendMessage({
       sendMessageFn: async () => {
         const messageCell = beginCell()
-          .storeUint(3009169275, 32)
+          .storeUint(2875216670, 32)
           .storeUint(campaignId, 32)
           .storeUint(toNano(values.amount), 256)
+          .storeAddress(receiverAddress)
           .endCell();
 
         const contract = Address.parse(contractAddress!);
@@ -95,7 +98,8 @@ const createWithdraw = handleSubmit(async (values) => {
         campaignId,
         values.amount,
         values.title,
-        values.body
+        values.body,
+        values.receiverAddress
       );
 
       showToast("success", "Success", "withdraw created successfully");
