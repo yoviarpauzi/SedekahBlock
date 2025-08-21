@@ -65,6 +65,7 @@ describe('Donation: Withdraw Campaign', () => {
             $$type: 'WithdrawCampaign',
             id,
             amount,
+            receiverAddress: deployer.address 
         };
 
         return await donation.send(

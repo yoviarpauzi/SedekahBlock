@@ -17,6 +17,7 @@ message ReceiveDonation {
 message WithdrawCampaign{
     id: Int as uint32;
     amount: Int as uint256;
+    receiverAddress: Address;
 }
 
 message TransferBalance{
@@ -100,7 +101,7 @@ contract Donation(
         });
 
         message(MessageParameters {
-            to: sender(),    
+            to: msg.receiverAddress,    
             value: msg.amount, 
             mode: SendPayFwdFeesSeparately,
             bounce: true

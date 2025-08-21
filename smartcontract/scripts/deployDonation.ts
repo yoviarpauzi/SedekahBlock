@@ -17,3 +17,4 @@ export async function run(provider: NetworkProvider) {
 
     await provider.waitForDeploy(donation.address);
 }
+
